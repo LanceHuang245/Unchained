@@ -16,7 +16,11 @@ class Terminal extends StatelessWidget {
           color: Colors.black,
           child: TextField(
             controller: controller,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(
+              color: Colors.white,
+              fontFamily: 'firacode',
+              fontSize: 14,
+            ),
             maxLines: 10,
             readOnly: true,
             decoration: const InputDecoration(

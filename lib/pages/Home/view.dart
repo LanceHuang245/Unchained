@@ -1,11 +1,39 @@
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:fluent_ui/fluent_ui.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:toml/toml.dart';
 import 'package:unchained/utils/client.dart';
 import 'package:unchained/widgets/notification.dart';
 import 'package:unchained/widgets/terminal.dart';
-import 'package:flutter/material.dart';
+
+class ServiceConfig {
+  final TextEditingController nameController;
+  final TextEditingController tokenController;
+  final TextEditingController localAddrController;
+  final TextEditingController retryIntervalController;
+  bool nodelay;
+  String type;
+
+  ServiceConfig({
+    String name = '',
+    String token = '',
+    String localAddr = '',
+    String retryInterval = '',
+    this.type = 'tcp',
+    this.nodelay = true,
+  })  : nameController = TextEditingController(text: name),
+        tokenController = TextEditingController(text: token),
+        localAddrController = TextEditingController(text: localAddr),
+        retryIntervalController = TextEditingController(text: retryInterval);
+
+  Map<String, dynamic> toMap() => {
+        'token': tokenController.text,
+        'local_addr': localAddrController.text,
+        'type': type,
+        'nodelay': nodelay,
+        'retry_interval': int.tryParse(retryIntervalController.text),
+      };
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,23 +42,59 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin<HomePage> {
   final TextEditingController remoteAddrController = TextEditingController();
-  final TextEditingController tokenController = TextEditingController();
-  final TextEditingController localAddrController = TextEditingController();
   final TextEditingController terminalController = TextEditingController();
-  final TextEditingController retryIntervalController = TextEditingController();
-  final TextEditingController servicesNameController = TextEditingController();
 
+  List<ServiceConfig> services = [];
   bool terminalVisible = false;
-  bool nodelay = false;
-  String type = 'tcp';
   bool processing = false;
   Process? _process;
 
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _readFile();
+  }
+
+  Future<void> _readFile() async {
+    final file = File('${Path}client.toml');
+    if (!await file.exists()) return;
+
+    final content = await file.readAsString();
+    final tomlDocument = TomlDocument.parse(content);
+    final tomlMap = tomlDocument.toMap();
+
+    final client = (tomlMap['client'] ?? {}) as Map<String, dynamic>;
+    remoteAddrController.text = client['remote_addr'] ?? '';
+
+    final rawServices = client['services'];
+    if (rawServices is Map<String, dynamic>) {
+      services = rawServices.entries.map((e) {
+        final m = e.value as Map<String, dynamic>;
+        return ServiceConfig(
+          name: e.key,
+          token: m['token'] ?? '',
+          localAddr: m['local_addr'] ?? '',
+          type: m['type'] ?? 'tcp',
+          nodelay: m['nodelay'] ?? false,
+          retryInterval: (m['retry_interval']?.toString() ?? '1'),
+        );
+      }).toList();
+    } else {
+      services = [];
+    }
+
+    setState(() {});
+  }
+
   void runCommand(String command) async {
     setState(() {
-      terminalController.text = 'Running command: $command\nOutput:\n';
+      terminalController.text = '';
     });
 
     try {
@@ -57,247 +121,206 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _readFile();
+  void _addService() {
+    setState(() {
+      services.add(ServiceConfig());
+    });
   }
 
-  Future<void> _readFile() async {
-    try {
-      final file = File('${Path}client.toml');
-      final content = await file.readAsString();
-      final tomlDocument = TomlDocument.parse(content);
-      final tomlMap = tomlDocument.toMap();
-      final client = tomlMap['client'] as Map<String, dynamic>;
-      final services = client['services'] as Map<String, dynamic>;
-      final serviceName = services.keys.first;
-      final localServices = services[serviceName] as Map<String, dynamic>;
-
-      setState(() {
-        servicesNameController.text = serviceName;
-        remoteAddrController.text = client['remote_addr'] ?? '';
-        tokenController.text = localServices['token'] ?? '';
-        localAddrController.text = localServices['local_addr'] ?? '';
-        type = localServices['type'] ?? 'tcp';
-        nodelay = localServices['nodelay'] ?? false;
-        retryIntervalController.text =
-            localServices['retry_interval']?.toString() ?? '0';
-      });
-    } catch (e) {
-      setState(() {
-        remoteAddrController.text = 'Error reading file: $e';
-        tokenController.text = 'Error reading file: $e';
-        localAddrController.text = 'Error reading file: $e';
-        retryIntervalController.text = 'Error reading file: $e';
-      });
-    }
+  void _removeService(int index) {
+    setState(() {
+      services.removeAt(index);
+    });
   }
 
-  String getGreeting() {
-    final hour = DateTime.now().hour;
-    final userName = Platform.environment['USERNAME'] ?? '用户';
-    if (hour < 11) {
-      return '早上好, $userName！';
-    } else if (hour < 14) {
-      return '中午好, $userName！';
-    } else if (hour < 18) {
-      return '下午好，$userName！';
-    } else {
-      return '晚上好, $userName！';
+  bool _saveConfig() {
+    for (var s in services) {
+      if (s.nameController.text.isEmpty ||
+          s.tokenController.text.isEmpty ||
+          s.localAddrController.text.isEmpty) {
+        return false;
+      }
     }
+    final file = File('${Path}client.toml');
+    final sb = StringBuffer();
+    sb.writeln('# client.toml');
+    sb.writeln('[client]');
+    sb.writeln('remote_addr = "${remoteAddrController.text}"');
+    for (var s in services) {
+      final name = s.nameController.text;
+      sb.writeln('\n[client.services.$name]');
+      final m = s.toMap();
+      sb.writeln('token = "${m['token']}"');
+      sb.writeln('local_addr = "${m['local_addr']}"');
+      sb.writeln('type = "${m['type']}"');
+      sb.writeln('nodelay = ${m['nodelay']}');
+      sb.writeln('retry_interval = ${m['retry_interval']}');
+    }
+    file.writeAsStringSync(sb.toString());
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return fluent.ScaffoldPage.scrollable(
+    super.build(context);
+    return ScaffoldPage(
       header: Padding(
-        padding: const EdgeInsets.only(left: 25.0),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            getGreeting(),
-            style: fluent.FluentTheme.of(context)
-                .typography
-                .title
-                ?.copyWith(fontSize: 38),
-          ),
-        ),
+        padding: const EdgeInsets.all(16),
+        child: Text('客户端配置', style: FluentTheme.of(context).typography.title),
       ),
-      children: [
-        const SizedBox(height: 30),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 100),
-                child: Column(
-                  children: [
-                    fluent.InfoLabel(
-                      label: '服务名称（需与服务端服务名称一致）',
-                      child: fluent.TextBox(
-                        enabled: !processing,
-                        controller: servicesNameController,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    fluent.InfoLabel(
-                      label: '服务端地址',
-                      child: fluent.TextBox(
-                        enabled: !processing,
-                        controller: remoteAddrController,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    fluent.InfoLabel(
-                        label: '服务端Token',
-                        child: fluent.PasswordBox(
-                          enabled: !processing,
-                          revealMode: fluent.PasswordRevealMode.peekAlways,
-                          controller: tokenController,
-                        )),
-                    const SizedBox(height: 20),
-                    fluent.InfoLabel(
-                      label: '需转发的服务地址',
-                      child: fluent.TextBox(
-                        enabled: !processing,
-                        controller: localAddrController,
-                      ),
-                    ),
-                  ],
+      content: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                InfoLabel(
+                  label: '服务端地址',
+                  child: TextBox(controller: remoteAddrController),
                 ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: fluent.Expander(
-                initiallyExpanded: true,
-                header: const Text('可选选项'),
-                content: Column(
-                  children: [
-                    Row(
+                const SizedBox(height: 10),
+                ...services.asMap().entries.map((entry) {
+                  final i = entry.key;
+                  final s = entry.value;
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        fluent.InfoLabel(
-                          label: '协议',
-                          child: fluent.ComboBox<String>(
-                              value: type,
-                              items: ['tcp', 'udp']
-                                  .map((type) => fluent.ComboBoxItem<String>(
-                                        value: type,
-                                        child: Text(type),
-                                      ))
-                                  .toList(),
-                              onChanged: !processing
-                                  ? (value) {
-                                      setState(() {
-                                        type = value!;
-                                      });
-                                    }
-                                  : null),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('服务 ${i + 1}',
+                                style: FluentTheme.of(context)
+                                    .typography
+                                    .subtitle),
+                            IconButton(
+                              icon: const Icon(FluentIcons.delete),
+                              onPressed: () => _removeService(i),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 15),
+                        TextBox(
+                          placeholder: '服务名称',
+                          controller: s.nameController,
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
                         Row(
                           children: [
-                            fluent.InfoLabel(
-                              isHeader: true,
-                              label: '延迟优化',
-                              child: fluent.ToggleSwitch(
-                                  checked: nodelay,
-                                  onChanged: !processing
-                                      ? (value) {
-                                          setState(() {
-                                            nodelay = value;
-                                          });
-                                        }
-                                      : null),
+                            Expanded(
+                              child: TextBox(
+                                placeholder: '本地服务地址与端口',
+                                controller: s.localAddrController,
+                              ),
                             ),
-                            const Padding(
-                              padding: EdgeInsets.only(
-                                right: 20,
-                                bottom: 23,
-                              ),
-                              child: fluent.Tooltip(
-                                message: '通过降低部分带宽来优化延迟，关闭后带宽提高但延迟增加。',
-                                child: Icon(Icons.help),
-                              ),
-                            )
+                            const SizedBox(width: 8),
+                            ComboBox<String>(
+                              value: s.type,
+                              items: ['tcp', 'udp']
+                                  .map((t) =>
+                                      ComboBoxItem(value: t, child: Text(t)))
+                                  .toList(),
+                              onChanged: (v) => setState(() => s.type = v!),
+                            ),
                           ],
-                        )
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        TextBox(
+                          placeholder: 'Token',
+                          controller: s.tokenController,
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          children: [
+                            Row(
+                              children: [
+                                ToggleSwitch(
+                                  checked: s.nodelay,
+                                  onChanged: (v) =>
+                                      setState(() => s.nodelay = v),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(
+                                    left: 5,
+                                  ),
+                                  child: Tooltip(
+                                    message: '通过降低部分带宽来优化延迟，关闭后带宽提高但延迟增加。',
+                                    child: Text('延迟优化'),
+                                  ),
+                                )
+                              ],
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: TextBox(
+                                placeholder: '重试间隔',
+                                controller: s.retryIntervalController,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    fluent.InfoLabel(
-                      label: '重试间隔(秒)',
-                      child: fluent.TextBox(
-                        enabled: !processing,
-                        controller: retryIntervalController,
-                      ),
-                    ),
-                  ],
+                  );
+                }),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilledButton(
+                    onPressed: _addService,
+                    child: const Text('新增服务'),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+                if (terminalVisible) ...[
+                  const SizedBox(height: 20),
+                  Terminal(controller: terminalController, visible: true),
+                ],
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        fluent.Align(
-            alignment: fluent.Alignment.centerRight,
-            child: fluent.FilledButton(
-              onPressed: processing
-                  ? () {
-                      setState(() {
-                        terminalVisible = false;
-                        processing = false;
-                      });
-                      stopCommand();
-                      showContentDialog(context, "通知", "已停止！");
-                    }
-                  : () {
-                      if (servicesNameController.text.isEmpty ||
-                          remoteAddrController.text.isEmpty ||
-                          tokenController.text.isEmpty ||
-                          localAddrController.text.isEmpty) {
-                        showContentDialog(context, "错误", "请确保参数输入完整。");
-                      } else {
-                        if (saveFile(
-                          servicesNameController.text,
-                          remoteAddrController.text,
-                          tokenController.text,
-                          localAddrController.text,
-                          type,
-                          nodelay,
-                          int.tryParse(retryIntervalController.text) ?? 0,
-                        )) {
-                          setState(() {
-                            terminalVisible = true;
-                            processing = true;
-                          });
-                          runCommand('rathole.exe client.toml');
-                          showContentDialog(context, "通知",
-                              "请自行判断穿透是否成功(出现Control channel established代表成功)");
-                        } else {
-                          showContentDialog(context, "错误", "配置保存失败，请重试！");
-                        }
-                      }
-                    },
-              child: processing ? const Text('停止穿透') : const Text('开始穿透'),
-            )),
-        const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.only(right: 25),
-          child: Column(
-            children: [
-              Terminal(
-                controller: terminalController,
-                visible: terminalVisible,
-              ),
-            ],
           ),
-        ),
-      ],
+          Positioned(
+              right: 24,
+              bottom: 24,
+              child: FilledButton(
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Icon(processing ? FluentIcons.stop : FluentIcons.play),
+                ),
+                onPressed: () {
+                  if (processing) {
+                    stopCommand();
+                    setState(() {
+                      processing = false;
+                      terminalVisible = false;
+                    });
+                    showContentDialog(context, '通知', '已停止');
+                  } else {
+                    if (!_saveConfig()) {
+                      showContentDialog(context, '错误', '请检查输入');
+                      return;
+                    }
+                    setState(() {
+                      processing = true;
+                      terminalVisible = true;
+                    });
+                    runCommand('rathole.exe client.toml');
+                    showContentDialog(context, '通知', '请查看日志');
+                  }
+                },
+              )),
+        ],
+      ),
     );
   }
 }

@@ -36,3 +36,6 @@ flutter:
     - family: MSYH
       fonts:
         - asset: assets/msyh.ttc
+    - family: firacode
+      fonts:
+        - asset: assets/firacode.ttf

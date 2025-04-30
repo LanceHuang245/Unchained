@@ -12,13 +12,6 @@ Future<void> initClientToml() async {
 # client.toml
 [client]
 remote_addr = ""
-
-[client.services.]
-token = ""
-local_addr = ""
-type = "tcp"
-nodelay = true
-retry_interval = 1
 ''');
   }
 }
