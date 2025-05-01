@@ -52,6 +52,14 @@ class HomePageState extends State<HomePage>
       parent: _slideController,
       curve: Curves.easeInOut,
     ));
+    _slideController.addStatusListener((status) {
+      if (status == AnimationStatus.dismissed) {
+        setState(() {
+          processing = false;
+          terminalVisible = false;
+        });
+      }
+    });
   }
 
   @override
@@ -99,7 +107,7 @@ class HomePageState extends State<HomePage>
     _process = await Process.start(
       'cmd',
       ['/c', command],
-      workingDirectory: '${Path}',
+      workingDirectory: Path,
     );
     _process!.stdout.transform(utf8.decoder).listen((data) {
       for (var line in data.split('\n')) {
@@ -124,7 +132,7 @@ class HomePageState extends State<HomePage>
     services.add(ServiceConfig());
     _listKey.currentState?.insertItem(
       newIndex,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 150),
     );
   }
 
@@ -133,7 +141,7 @@ class HomePageState extends State<HomePage>
     _listKey.currentState?.removeItem(
       index,
       (context, animation) => _buildServiceTile(removed, index, animation),
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 150),
     );
   }
 
@@ -141,7 +149,8 @@ class HomePageState extends State<HomePage>
     for (var s in services) {
       if (s.nameController.text.isEmpty ||
           s.tokenController.text.isEmpty ||
-          s.localAddrController.text.isEmpty) {
+          s.localAddrController.text.isEmpty ||
+          s.retryIntervalController.text.isEmpty) {
         return false;
       }
     }
@@ -248,8 +257,9 @@ class HomePageState extends State<HomePage>
                   const SizedBox(width: 16),
                   Expanded(
                     child: TextBox(
+                      keyboardType: TextInputType.number,
                       enabled: !processing,
-                      placeholder: '重试间隔',
+                      placeholder: '重试间隔(s)',
                       controller: s.retryIntervalController,
                     ),
                   ),
@@ -305,20 +315,17 @@ class HomePageState extends State<HomePage>
                 SlideTransition(
                   position: _slideAnimation,
                   child: Container(
-                    padding: const EdgeInsets.only(right: 10),
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: processing
-                        ? Column(
-                            children: [
-                              Expanded(
-                                child: Terminal(
-                                    lines: formattedLines,
-                                    visible: terminalVisible),
-                              ),
-                            ],
-                          )
-                        : const SizedBox.shrink(),
-                  ),
+                      padding: const EdgeInsets.only(right: 10),
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Terminal(
+                                lines: formattedLines,
+                                visible: terminalVisible),
+                          ),
+                        ],
+                      )),
                 ),
               ],
             ),
@@ -361,8 +368,6 @@ class HomePageState extends State<HomePage>
                         if (processing) {
                           stopCommand();
                           setState(() {
-                            processing = false;
-                            terminalVisible = false;
                             _slideController.reverse();
                           });
                           showContentDialog(context, '通知', '已停止');

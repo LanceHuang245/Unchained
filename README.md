@@ -1,8 +1,8 @@
 # Unchained
-内网穿透Client - Flutter Version
+一款调用Rathole的内网穿透客户端 - Flutter Version
 
 ## 使用方法
-1. 防火墙开放需要连接及通行的端口
+1. 需要一个拥有公网的服务器，并且防火墙开放需要连接及通行的端口
 2. 前往[Rathole](https://github.com/rapiz1/rathole)下载并在服务端根据README运行Rathole服务端
 3. 下载并运行Unchained
 4. 在Unchained中输入Rathole服务端的[server]下的**bind.addr**和Token，以及需要转发的端口地址
@@ -10,6 +10,7 @@
 
 ## 致谢
 [Rathole](https://github.com/rapiz1/rathole)
+[Flutter](https://github.com/flutter/flutter)
 
 ## 截图
 ![Screenshot](/public/Screenshot.png)

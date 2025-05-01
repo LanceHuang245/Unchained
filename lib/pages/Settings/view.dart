@@ -40,7 +40,7 @@ class SettingsPageState extends State<SettingsPage> {
             Container(
               padding: const EdgeInsets.only(left: 30),
               child:
-                  const Text("Unchained 1.1.1", style: TextStyle(fontSize: 13)),
+                  const Text("Unchained 1.2.0", style: TextStyle(fontSize: 13)),
             ),
             const SizedBox(height: 25),
             Row(children: [
@@ -50,14 +50,14 @@ class SettingsPageState extends State<SettingsPage> {
                       onPressed: () {
                         loadURL('https://github.com/rapiz1/rathole');
                       },
-                      child: const Text("Rathole项目"))),
+                      child: const Text("Rathole"))),
               Container(
                   padding: const EdgeInsets.only(left: 20),
                   child: HyperlinkButton(
                       onPressed: () {
                         loadURL('https://github.com/ClaretWheel1481/Unchained');
                       },
-                      child: const Text("Unchained源码"))),
+                      child: const Text("Unchained"))),
             ]),
           ],
         ),
