@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:toml/toml.dart';
+import 'package:unchained/classes/log_formatter.dart';
 import 'package:unchained/classes/service_config.dart';
 import 'package:unchained/utils/client.dart';
 import 'package:unchained/widgets/notification.dart';
@@ -90,27 +91,6 @@ class HomePageState extends State<HomePage>
     setState(() {});
   }
 
-  String _formatLine(String raw) {
-    final timeRegex = RegExp(r'^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)');
-    final timeMatch = timeRegex.firstMatch(raw);
-    String timePart = '';
-    if (timeMatch != null) {
-      final dt = DateTime.parse(timeMatch.group(1)!).toLocal();
-      timePart = dt.toIso8601String().replaceFirst('T', ' ').split('.').first;
-      raw = raw.substring(timeMatch.group(0)!.length).trimLeft();
-    }
-
-    final levelRegex = RegExp(r'^(INFO|WARNING|ERROR)\b');
-    final levelMatch = levelRegex.firstMatch(raw);
-    String levelPart = '';
-    if (levelMatch != null) {
-      levelPart = levelMatch.group(1)!;
-      raw = raw.substring(levelPart.length).trimLeft();
-    }
-
-    return '$timePart|$levelPart|$raw';
-  }
-
   void runCommand(String command) async {
     setState(() {
       formattedLines.clear();
@@ -124,14 +104,14 @@ class HomePageState extends State<HomePage>
     _process!.stdout.transform(utf8.decoder).listen((data) {
       for (var line in data.split('\n')) {
         if (line.trim().isEmpty) continue;
-        final f = _formatLine(line);
+        final f = LogFormatter.formatLine(line);
         setState(() => formattedLines.add(f));
       }
     });
     _process!.stderr.transform(utf8.decoder).listen((data) {
       for (var line in data.split('\n')) {
         if (line.trim().isEmpty) continue;
-        final f = _formatLine(line);
+        final f = LogFormatter.formatLine(line);
         setState(() => formattedLines.add(f));
       }
     });
@@ -285,7 +265,7 @@ class HomePageState extends State<HomePage>
     super.build(context);
     return ScaffoldPage(
         header: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Text('客户端配置', style: FluentTheme.of(context).typography.title),
         ),
         content: Stack(
