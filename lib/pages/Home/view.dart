@@ -19,6 +19,7 @@ class HomePageState extends State<HomePage>
         AutomaticKeepAliveClientMixin<HomePage>,
         SingleTickerProviderStateMixin<HomePage> {
   final TextEditingController remoteAddrController = TextEditingController();
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   List<String> formattedLines = [];
   List<ServiceConfig> services = [];
@@ -34,7 +35,11 @@ class HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    _readFile();
+    _readFile().then((_) {
+      for (var i = 0; i < services.length; i++) {
+        _listKey.currentState?.insertItem(i, duration: Duration.zero);
+      }
+    });
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -135,15 +140,21 @@ class HomePageState extends State<HomePage>
   }
 
   void _addService() {
-    setState(() {
-      services.add(ServiceConfig());
-    });
+    final newIndex = services.length;
+    services.add(ServiceConfig());
+    _listKey.currentState?.insertItem(
+      newIndex,
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   void _removeService(int index) {
-    setState(() {
-      services.removeAt(index);
-    });
+    final removed = services.removeAt(index);
+    _listKey.currentState?.removeItem(
+      index,
+      (context, animation) => _buildServiceTile(removed, index, animation),
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   bool _saveConfig() {
@@ -173,6 +184,102 @@ class HomePageState extends State<HomePage>
     return true;
   }
 
+  Widget _buildServiceTile(
+      ServiceConfig s, int i, Animation<double> animation) {
+    return SizeTransition(
+        sizeFactor: animation,
+        axisAlignment: 0.0,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.8),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+              borderRadius: BorderRadius.circular(8)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('服务 ${i + 1}',
+                      style: FluentTheme.of(context).typography.subtitle),
+                  IconButton(
+                    icon: const Icon(FluentIcons.delete),
+                    onPressed: processing ? null : () => _removeService(i),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5),
+              TextBox(
+                enabled: !processing,
+                placeholder: '服务名称',
+                controller: s.nameController,
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextBox(
+                      enabled: !processing,
+                      placeholder: '本地服务地址与端口',
+                      controller: s.localAddrController,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ComboBox<String>(
+                    value: s.type,
+                    items: ['tcp', 'udp']
+                        .map((t) => ComboBoxItem(value: t, child: Text(t)))
+                        .toList(),
+                    onChanged:
+                        processing ? null : (v) => setState(() => s.type = v!),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5),
+              TextBox(
+                enabled: !processing,
+                placeholder: 'Token',
+                controller: s.tokenController,
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: [
+                  Row(
+                    children: [
+                      ToggleSwitch(
+                        checked: s.nodelay,
+                        onChanged: processing
+                            ? null
+                            : (v) => setState(() => s.nodelay = v),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(
+                          left: 5,
+                        ),
+                        child: Tooltip(
+                          message: '通过降低部分带宽来优化延迟，关闭后带宽提高但延迟增加。',
+                          child: Text('延迟优化'),
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextBox(
+                      enabled: !processing,
+                      placeholder: '重试间隔',
+                      controller: s.retryIntervalController,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -188,130 +295,31 @@ class HomePageState extends State<HomePage>
               children: [
                 Expanded(
                   flex: 1,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        InfoLabel(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: InfoLabel(
                           label: '服务端地址',
                           child: TextBox(
                               enabled: !processing,
                               controller: remoteAddrController),
                         ),
-                        const SizedBox(height: 10),
-                        ...services.asMap().entries.map((entry) {
-                          final i = entry.key;
-                          final s = entry.value;
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                border: Border.all(
-                                    color: Colors.grey.withValues(alpha: 0.1)),
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('服务 ${i + 1}',
-                                        style: FluentTheme.of(context)
-                                            .typography
-                                            .subtitle),
-                                    IconButton(
-                                      icon: const Icon(FluentIcons.delete),
-                                      onPressed: processing
-                                          ? null
-                                          : () => _removeService(i),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                TextBox(
-                                  enabled: !processing,
-                                  placeholder: '服务名称',
-                                  controller: s.nameController,
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextBox(
-                                        enabled: !processing,
-                                        placeholder: '本地服务地址与端口',
-                                        controller: s.localAddrController,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    ComboBox<String>(
-                                      value: s.type,
-                                      items: ['tcp', 'udp']
-                                          .map((t) => ComboBoxItem(
-                                              value: t, child: Text(t)))
-                                          .toList(),
-                                      onChanged: processing
-                                          ? null
-                                          : (v) => setState(() => s.type = v!),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                TextBox(
-                                  enabled: !processing,
-                                  placeholder: 'Token',
-                                  controller: s.tokenController,
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        ToggleSwitch(
-                                          checked: s.nodelay,
-                                          onChanged: processing
-                                              ? null
-                                              : (v) =>
-                                                  setState(() => s.nodelay = v),
-                                        ),
-                                        const Padding(
-                                          padding: EdgeInsets.only(
-                                            left: 5,
-                                          ),
-                                          child: Tooltip(
-                                            message:
-                                                '通过降低部分带宽来优化延迟，关闭后带宽提高但延迟增加。',
-                                            child: Text('延迟优化'),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: TextBox(
-                                        enabled: !processing,
-                                        placeholder: '重试间隔',
-                                        controller: s.retryIntervalController,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: FilledButton(
-                            onPressed: processing ? null : _addService,
-                            child: const Text('新增服务'),
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: AnimatedList(
+                          key: _listKey,
+                          initialItemCount: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemBuilder: (context, index, animation) {
+                            return _buildServiceTile(
+                                services[index], index, animation);
+                          },
                         ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
                 SlideTransition(
@@ -335,47 +343,67 @@ class HomePageState extends State<HomePage>
               ],
             ),
             Positioned(
-              right: 24,
-              bottom: 24,
-              child: FilledButton(
-                child: SizedBox(
-                  width: 70,
-                  height: 40,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(processing ? FluentIcons.stop : FluentIcons.play),
-                      const SizedBox(width: 5),
-                      Text(processing ? "停止" : "运行")
-                    ],
-                  ),
-                ),
-                onPressed: () {
-                  if (processing) {
-                    stopCommand();
-                    setState(() {
-                      processing = false;
-                      terminalVisible = false;
-                      _slideController.reverse();
-                    });
-                    showContentDialog(context, '通知', '已停止');
-                  } else {
-                    if (!_saveConfig()) {
-                      showContentDialog(context, '错误', '请检查输入');
-                      return;
-                    }
-                    setState(() {
-                      processing = true;
-                      terminalVisible = true;
-                    });
-                    _slideController.forward();
-                    runCommand('rathole.exe client.toml');
-                    showContentDialog(context, '通知',
-                        '请查看日志是否出现对应服务的Control channel established');
-                  }
-                },
-              ),
-            ),
+                right: 24,
+                bottom: 24,
+                child: Row(
+                  children: [
+                    FilledButton(
+                        onPressed: processing ? null : _addService,
+                        child: const SizedBox(
+                          width: 100,
+                          height: 40,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(FluentIcons.add),
+                              SizedBox(width: 10),
+                              Text("新增服务")
+                            ],
+                          ),
+                        )),
+                    const SizedBox(width: 20),
+                    FilledButton(
+                      child: SizedBox(
+                        width: 100,
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(processing
+                                ? FluentIcons.stop
+                                : FluentIcons.play),
+                            const SizedBox(width: 10),
+                            Text(processing ? "停止" : "运行")
+                          ],
+                        ),
+                      ),
+                      onPressed: () {
+                        if (processing) {
+                          stopCommand();
+                          setState(() {
+                            processing = false;
+                            terminalVisible = false;
+                            _slideController.reverse();
+                          });
+                          showContentDialog(context, '通知', '已停止');
+                        } else {
+                          if (!_saveConfig()) {
+                            showContentDialog(context, '错误', '请检查输入');
+                            return;
+                          }
+                          setState(() {
+                            processing = true;
+                            terminalVisible = true;
+                          });
+                          _slideController.forward();
+                          runCommand('rathole.exe client.toml');
+                          showContentDialog(context, '通知',
+                              '请查看日志是否出现对应服务的Control channel established');
+                        }
+                      },
+                    ),
+                  ],
+                )),
           ],
         ));
   }
