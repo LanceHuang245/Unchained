@@ -46,6 +46,13 @@ class NavigationWidgetState extends State<NavigationWidget> {
             SizedBox(
               width: 50,
               height: 60,
+              child: MaximizeWindowButton(
+                colors: WindowButtonColors(),
+              ),
+            ),
+            SizedBox(
+              width: 50,
+              height: 60,
               child: CloseWindowButton(
                 onPressed: () async {
                   await stopCommand();

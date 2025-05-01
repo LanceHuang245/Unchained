@@ -12,7 +12,6 @@ void main() async {
   // 启动时设置窗口大小
   doWhenWindowReady(() {
     appWindow.minSize = const Size(1080, 620);
-    appWindow.maxSize = const Size(1080, 620);
     appWindow.alignment = Alignment.center;
     appWindow.show();
   });

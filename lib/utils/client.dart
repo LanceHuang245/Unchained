@@ -1,8 +1,8 @@
 import 'dart:io';
 
 // TODO: 编译时记得修改
-const Path = "data/flutter_assets/assets/";
-// final Path = "assets/";
+// const Path = "data/flutter_assets/assets/";
+final Path = "assets/";
 
 Future<void> initClientToml() async {
   final file = File('${Path}client.toml');
