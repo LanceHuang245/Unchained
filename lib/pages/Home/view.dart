@@ -182,8 +182,11 @@ class HomePageState extends State<HomePage>
           margin: const EdgeInsets.symmetric(vertical: 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+              color: FluentTheme.of(context).cardColor,
+              border: Border.all(
+                  color: FluentTheme.of(context)
+                      .resources
+                      .controlStrokeColorDefault),
               borderRadius: BorderRadius.circular(8)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -46,9 +46,7 @@ class NavigationWidgetState extends State<NavigationWidget> {
             SizedBox(
               width: 50,
               height: 60,
-              child: MaximizeWindowButton(
-                colors: WindowButtonColors(),
-              ),
+              child: MaximizeWindowButton(),
             ),
             SizedBox(
               width: 50,

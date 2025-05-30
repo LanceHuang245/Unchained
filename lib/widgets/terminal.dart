@@ -15,8 +15,11 @@ class Terminal extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-            color: FluentTheme.of(context).micaBackgroundColor,
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+            color: FluentTheme.of(context).cardColor,
+            border: Border.all(
+                color: FluentTheme.of(context)
+                    .resources
+                    .controlStrokeColorDefault),
             borderRadius: BorderRadius.circular(8)),
         child: ListView.builder(
           shrinkWrap: true,
@@ -44,17 +47,22 @@ class Terminal extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Firacode',
                     fontSize: 14,
-                    color: Colors.white,
+                    color: FluentTheme.of(context)
+                        .resources
+                        .textOnAccentFillColorPrimary,
                   ),
                   children: [
                     if (time.isNotEmpty)
                       TextSpan(
                         text: '$time  ',
                         style: TextStyle(
-                            color: Colors.grey.withValues(alpha: 0.5)),
+                          color: FluentTheme.of(context)
+                              .resources
+                              .textFillColorTertiary,
+                        ),
                       ),
                     if (level.isNotEmpty)
                       TextSpan(

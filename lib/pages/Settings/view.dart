@@ -1,4 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:unchained/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -9,6 +11,19 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
+  /// 当前选中的主题模式
+  ThemeMode _currentMode = themeModeNotifier.value;
+
+  /// 切换主题的方法（更新 ValueNotifier 与 SharedPreferences）
+  Future<void> _changeMode(ThemeMode newMode) async {
+    if (newMode == _currentMode) return;
+    setState(() => _currentMode = newMode);
+    themeModeNotifier.value = newMode;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('theme_mode', newMode.name);
+  }
+
   Future loadURL(String url) async {
     await launchUrl(Uri.parse(url));
   }
@@ -17,7 +32,7 @@ class SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: Padding(
-        padding: const EdgeInsets.only(left: 50.0),
+        padding: const EdgeInsets.only(left: 30.0),
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text(
@@ -32,27 +47,59 @@ class SettingsPageState extends State<SettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.only(left: 30),
+                padding: const EdgeInsets.only(left: 20),
+                child: const Text(
+                  '主题模式',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                )),
+            const SizedBox(height: 15),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Column(
+                children: [
+                  RadioButton(
+                    content: const Text('浅色模式'),
+                    checked: _currentMode == ThemeMode.light,
+                    onChanged: (_) => _changeMode(ThemeMode.light),
+                  ),
+                  const SizedBox(height: 10),
+                  RadioButton(
+                    content: const Text('深色模式'),
+                    checked: _currentMode == ThemeMode.dark,
+                    onChanged: (_) => _changeMode(ThemeMode.dark),
+                  ),
+                  const SizedBox(height: 10),
+                  RadioButton(
+                    content: const Text('跟随系统'),
+                    checked: _currentMode == ThemeMode.system,
+                    onChanged: (_) => _changeMode(ThemeMode.system),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
+            Container(
+              padding: const EdgeInsets.only(left: 20),
               child: const Text("关于此应用",
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 15),
             Container(
-              padding: const EdgeInsets.only(left: 30),
+              padding: const EdgeInsets.only(left: 20),
               child:
-                  const Text("Unchained 1.2.0", style: TextStyle(fontSize: 13)),
+                  const Text("Unchained 1.2.1", style: TextStyle(fontSize: 13)),
             ),
             const SizedBox(height: 25),
             Row(children: [
               Container(
-                  padding: const EdgeInsets.only(left: 20),
+                  padding: const EdgeInsets.only(left: 10),
                   child: HyperlinkButton(
                       onPressed: () {
                         loadURL('https://github.com/rapiz1/rathole');
                       },
                       child: const Text("Rathole"))),
               Container(
-                  padding: const EdgeInsets.only(left: 20),
+                  padding: const EdgeInsets.only(left: 10),
                   child: HyperlinkButton(
                       onPressed: () {
                         loadURL('https://github.com/ClaretWheel1481/Unchained');

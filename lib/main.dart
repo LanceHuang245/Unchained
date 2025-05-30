@@ -7,12 +7,25 @@ import 'package:unchained/widgets/notification.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+// 全局 ThemeMode 通知器
+final themeModeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
+
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 读取持久化的主题模式
+  final prefs = await SharedPreferences.getInstance();
+  final saved = prefs.getString('theme_mode') ?? 'system';
+  themeModeNotifier.value = ThemeMode.values.firstWhere(
+    (m) => m.name == saved,
+    orElse: () => ThemeMode.system,
+  );
+
   // 检查Toml文件是否存在，没有则初始化
   await initClientToml();
 
   // 检查是否第一次启动
-  final prefs = await SharedPreferences.getInstance();
+  // final prefs = await SharedPreferences.getInstance();
   final isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
 
   runApp(const MyApp());
@@ -41,13 +54,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FluentApp(
-      navigatorKey: navigatorKey,
-      theme: FluentThemeData(
-          brightness: Brightness.light,
-          fontFamily: "MSYH",
-          accentColor: Colors.blue),
-      home: const NavigationWidget(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeModeNotifier,
+      builder: (context, mode, _) {
+        return FluentApp(
+          title: 'Unchained',
+          themeMode: mode,
+          theme: FluentThemeData(
+              brightness: Brightness.light,
+              accentColor: Colors.blue,
+              fontFamily: "msyh"),
+          darkTheme: FluentThemeData(
+              brightness: Brightness.dark,
+              accentColor: Colors.blue,
+              fontFamily: "msyh"),
+          home: const NavigationWidget(),
+        );
+      },
     );
   }
 }
