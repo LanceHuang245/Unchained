@@ -32,6 +32,7 @@ flutter:
 
   assets:
     - assets/rathole.exe
+    - assets/app_icon.ico
 
   fonts:
     - family: MSYH

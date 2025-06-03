@@ -11,10 +11,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-  /// 当前选中的主题模式
   ThemeMode _currentMode = themeModeNotifier.value;
 
-  /// 切换主题的方法（更新 ValueNotifier 与 SharedPreferences）
   Future<void> _changeMode(ThemeMode newMode) async {
     if (newMode == _currentMode) return;
     setState(() => _currentMode = newMode);
@@ -58,6 +56,12 @@ class SettingsPageState extends State<SettingsPage> {
               child: Column(
                 children: [
                   RadioButton(
+                    content: const Text('跟随系统'),
+                    checked: _currentMode == ThemeMode.system,
+                    onChanged: (_) => _changeMode(ThemeMode.system),
+                  ),
+                  const SizedBox(height: 10),
+                  RadioButton(
                     content: const Text('浅色模式'),
                     checked: _currentMode == ThemeMode.light,
                     onChanged: (_) => _changeMode(ThemeMode.light),
@@ -67,12 +71,6 @@ class SettingsPageState extends State<SettingsPage> {
                     content: const Text('深色模式'),
                     checked: _currentMode == ThemeMode.dark,
                     onChanged: (_) => _changeMode(ThemeMode.dark),
-                  ),
-                  const SizedBox(height: 10),
-                  RadioButton(
-                    content: const Text('跟随系统'),
-                    checked: _currentMode == ThemeMode.system,
-                    onChanged: (_) => _changeMode(ThemeMode.system),
                   ),
                 ],
               ),

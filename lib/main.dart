@@ -25,7 +25,6 @@ void main() async {
   await initClientToml();
 
   // 检查是否第一次启动
-  // final prefs = await SharedPreferences.getInstance();
   final isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
 
   runApp(const MyApp());
@@ -33,6 +32,7 @@ void main() async {
   // 启动时设置窗口大小
   doWhenWindowReady(() {
     appWindow.minSize = const Size(1080, 620);
+    appWindow.size = const Size(1080, 620);
     appWindow.alignment = Alignment.center;
     appWindow.show();
   });
