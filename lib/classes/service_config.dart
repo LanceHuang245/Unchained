@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
-class ServiceConfig {
+class RatholeServiceConfig {
   final TextEditingController nameController;
   final TextEditingController tokenController;
   final TextEditingController localAddrController;
@@ -8,11 +8,11 @@ class ServiceConfig {
   bool nodelay;
   String type;
 
-  ServiceConfig({
+  RatholeServiceConfig({
     String name = '',
     String token = '',
     String localAddr = '',
-    String retryInterval = '',
+    String retryInterval = '1',
     this.type = 'tcp',
     this.nodelay = true,
   })  : nameController = TextEditingController(text: name),

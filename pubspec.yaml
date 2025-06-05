@@ -19,7 +19,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   url_launcher:
   shared_preferences: 
-  
+  dio: 
+  flutter_markdown: 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

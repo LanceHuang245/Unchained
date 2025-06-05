@@ -4,7 +4,7 @@ import 'dart:io';
 // const Path = "data/flutter_assets/assets/";
 const Path = "assets/";
 
-Future<void> initClientToml() async {
+Future<void> initRatholeClientToml() async {
   final file = File('${Path}client.toml');
   if (!await file.exists()) {
     await file.create(recursive: true);
@@ -16,8 +16,8 @@ remote_addr = ""
   }
 }
 
-bool saveFile(String service, remoteAddr, token, localAddr, type, bool nodelay,
-    int retryInterval) {
+bool saveRatholeFile(String service, remoteAddr, token, localAddr, type,
+    bool nodelay, int retryInterval) {
   try {
     final file = File('${Path}client.toml');
     final content = '''
@@ -39,6 +39,6 @@ retry_interval = $retryInterval
   }
 }
 
-Future<void> stopCommand() async {
+Future<void> stopRathole() async {
   await Process.start('taskkill', ['/F', '/IM', 'rathole.exe']);
 }

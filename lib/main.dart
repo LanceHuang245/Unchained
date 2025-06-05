@@ -1,6 +1,8 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:unchained/app_constant.dart';
+import 'package:unchained/utils/app.dart';
 import 'package:unchained/utils/client.dart';
 import 'package:unchained/widgets/navigation.dart';
 import 'package:unchained/widgets/notification.dart';
@@ -21,13 +23,16 @@ void main() async {
     orElse: () => ThemeMode.system,
   );
 
+  // 检查是否启用自动更新
+  final autoUpdateChecked = prefs.getBool('auto_update_checked') ?? true;
+
   // 检查Toml文件是否存在，没有则初始化
-  await initClientToml();
+  await initRatholeClientToml();
 
-  // 检查是否第一次启动
-  final isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
-
-  runApp(const MyApp());
+  // 传递状态给MyApp
+  runApp(MyApp(
+    shouldCheckUpdate: autoUpdateChecked,
+  ));
 
   // 启动时设置窗口大小
   doWhenWindowReady(() {
@@ -36,21 +41,42 @@ void main() async {
     appWindow.alignment = Alignment.center;
     appWindow.show();
   });
-
-  if (isFirstLaunch) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showContentDialog(
-        navigatorKey.currentState!.overlay!.context,
-        '通知',
-        '请关闭Windows Defender或其他杀毒软件，以免Rathole.exe被误杀导致程序错误。若Rathole.exe已经被删除，请关闭杀毒软件并重新安装该程序。',
-      );
-    });
-    await prefs.setBool('is_first_launch', false);
-  }
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  final bool shouldCheckUpdate;
+
+  const MyApp({
+    super.key,
+    required this.shouldCheckUpdate,
+  });
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.shouldCheckUpdate && mounted) {
+        debugPrint("检查更新中...");
+        final update = await checkUpdate();
+        if (update && mounted) {
+          final context = navigatorKey.currentContext;
+          if (context != null) {
+            showUpdateDialog(
+              context,
+              title: latestVersionTag ?? '',
+              subtitle: latestReleaseBody ?? '获取更新信息失败',
+            );
+          }
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,16 +84,13 @@ class MyApp extends StatelessWidget {
       valueListenable: themeModeNotifier,
       builder: (context, mode, _) {
         return FluentApp(
-          title: 'Unchained',
+          title: AppConstant.appName,
+          navigatorKey: navigatorKey,
           themeMode: mode,
-          theme: FluentThemeData(
-              brightness: Brightness.light,
-              accentColor: Colors.blue,
-              fontFamily: "msyh"),
-          darkTheme: FluentThemeData(
-              brightness: Brightness.dark,
-              accentColor: Colors.blue,
-              fontFamily: "msyh"),
+          theme:
+              FluentThemeData(brightness: Brightness.light, fontFamily: "msyh"),
+          darkTheme:
+              FluentThemeData(brightness: Brightness.dark, fontFamily: "msyh"),
           home: const NavigationWidget(),
         );
       },

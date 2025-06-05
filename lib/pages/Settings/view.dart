@@ -1,7 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/main.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:unchained/pages/Settings/widgets/about.dart';
+import 'package:unchained/pages/Settings/widgets/auto_update.dart';
+import 'package:unchained/pages/Settings/widgets/proxy_settings.dart';
+import 'package:unchained/pages/Settings/widgets/theme_settings.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -11,7 +14,34 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
+  bool autoUpdateChecked = true;
   ThemeMode _currentMode = themeModeNotifier.value;
+  final TextEditingController proxyAddrController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      autoUpdateChecked = prefs.getBool('auto_update_checked') ?? true;
+    });
+    final savedProxy = prefs.getString('proxy_addr') ?? '';
+    proxyAddrController.text = savedProxy;
+  }
+
+  Future<void> _saveProxyAddress(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('proxy_addr', value);
+  }
+
+  Future<void> _saveAutoUpdateSetting(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auto_update_checked', value);
+  }
 
   Future<void> _changeMode(ThemeMode newMode) async {
     if (newMode == _currentMode) return;
@@ -22,15 +52,26 @@ class SettingsPageState extends State<SettingsPage> {
     await prefs.setString('theme_mode', newMode.name);
   }
 
-  Future loadURL(String url) async {
-    await launchUrl(Uri.parse(url));
+  void _onAutoUpdateChanged(bool value) {
+    setState(() => autoUpdateChecked = value);
+    _saveAutoUpdateSetting(value);
+  }
+
+  void _onProxyAddressChanged(String value) {
+    _saveProxyAddress(value);
+  }
+
+  @override
+  void dispose() {
+    proxyAddrController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: Padding(
-        padding: const EdgeInsets.only(left: 30.0),
+        padding: const EdgeInsets.only(left: 31.0),
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text(
@@ -40,70 +81,35 @@ class SettingsPageState extends State<SettingsPage> {
         ),
       ),
       children: [
-        const SizedBox(height: 30),
+        const SizedBox(height: 15),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 5),
+            ThemeSettingsWidget(
+              currentMode: _currentMode,
+              onModeChanged: _changeMode,
+            ),
+            const SizedBox(height: 3),
+            AutoUpdateWidget(
+              checked: autoUpdateChecked,
+              onChanged: _onAutoUpdateChanged,
+            ),
+            const SizedBox(height: 3),
+            ProxySettingsWidget(
+              controller: proxyAddrController,
+              onChanged: _onProxyAddressChanged,
+            ),
+            const SizedBox(height: 25),
             Container(
-                padding: const EdgeInsets.only(left: 20),
-                child: const Text(
-                  '主题模式',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                )),
-            const SizedBox(height: 15),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Column(
-                children: [
-                  RadioButton(
-                    content: const Text('跟随系统'),
-                    checked: _currentMode == ThemeMode.system,
-                    onChanged: (_) => _changeMode(ThemeMode.system),
-                  ),
-                  const SizedBox(height: 10),
-                  RadioButton(
-                    content: const Text('浅色模式'),
-                    checked: _currentMode == ThemeMode.light,
-                    onChanged: (_) => _changeMode(ThemeMode.light),
-                  ),
-                  const SizedBox(height: 10),
-                  RadioButton(
-                    content: const Text('深色模式'),
-                    checked: _currentMode == ThemeMode.dark,
-                    onChanged: (_) => _changeMode(ThemeMode.dark),
-                  ),
-                ],
+              padding: const EdgeInsets.only(left: 11),
+              child: const Text(
+                '关于',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 25),
-            Container(
-              padding: const EdgeInsets.only(left: 20),
-              child: const Text("关于此应用",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 15),
-            Container(
-              padding: const EdgeInsets.only(left: 20),
-              child:
-                  const Text("Unchained 1.2.1", style: TextStyle(fontSize: 13)),
-            ),
-            const SizedBox(height: 25),
-            Row(children: [
-              Container(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: HyperlinkButton(
-                      onPressed: () {
-                        loadURL('https://github.com/rapiz1/rathole');
-                      },
-                      child: const Text("Rathole"))),
-              Container(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: HyperlinkButton(
-                      onPressed: () {
-                        loadURL('https://github.com/ClaretWheel1481/Unchained');
-                      },
-                      child: const Text("Unchained"))),
-            ]),
+            const SizedBox(height: 5),
+            const AboutWidget(),
           ],
         ),
       ],

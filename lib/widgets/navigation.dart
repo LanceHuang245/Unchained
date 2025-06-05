@@ -1,5 +1,6 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:unchained/app_constant.dart';
 import 'package:unchained/pages/Home/view.dart';
 import 'package:unchained/pages/Settings/view.dart';
 import 'package:unchained/utils/client.dart';
@@ -35,7 +36,7 @@ class NavigationWidgetState extends State<NavigationWidget> {
           width: 19,
           height: 19,
         ),
-        title: const Text('Unchained'),
+        title: const Text(AppConstant.appName),
         actions: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -57,7 +58,7 @@ class NavigationWidgetState extends State<NavigationWidget> {
               height: 60,
               child: CloseWindowButton(
                 onPressed: () async {
-                  await stopCommand();
+                  await stopRathole();
                   appWindow.close();
                 },
               ),
