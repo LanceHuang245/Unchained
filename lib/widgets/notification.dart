@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:unchained/utils/app_updater.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void showBottomNotification(BuildContext context, String title, content,
@@ -40,14 +41,25 @@ void showUpdateDialog(BuildContext context,
           onPressed: () => Navigator.pop(context),
         ),
         FilledButton(
-          child: const Text('前往下载'),
+          child: const Text('立即更新'),
           onPressed: () {
             Navigator.pop(context);
-            loadURL('https://github.com/ClaretWheel1481/Unchained/releases');
+            tryAutoUpdate(context);
           },
         ),
       ],
     ),
+  );
+}
+
+// 更新进度对话框
+void showUpdatingDialog(BuildContext context) async {
+  await showDialog(
+    context: context,
+    builder: (context) => const ContentDialog(
+        title: Text("更新"),
+        content: SizedBox(child: ProgressBar()),
+        actions: null),
   );
 }
 

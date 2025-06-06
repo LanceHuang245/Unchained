@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/main.dart';
 import 'package:unchained/pages/Settings/widgets/about.dart';
 import 'package:unchained/pages/Settings/widgets/auto_update.dart';
+import 'package:unchained/pages/Settings/widgets/check_update.dart';
 import 'package:unchained/pages/Settings/widgets/proxy_settings.dart';
 import 'package:unchained/pages/Settings/widgets/theme_settings.dart';
 
@@ -95,6 +96,8 @@ class SettingsPageState extends State<SettingsPage> {
               checked: autoUpdateChecked,
               onChanged: _onAutoUpdateChanged,
             ),
+            const SizedBox(height: 3),
+            const CheckUpdateWidget(),
             const SizedBox(height: 3),
             ProxySettingsWidget(
               controller: proxyAddrController,

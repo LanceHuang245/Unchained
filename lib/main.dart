@@ -2,7 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
-import 'package:unchained/utils/app.dart';
+import 'package:unchained/utils/app_updater.dart';
 import 'package:unchained/utils/client.dart';
 import 'package:unchained/widgets/navigation.dart';
 import 'package:unchained/widgets/notification.dart';
