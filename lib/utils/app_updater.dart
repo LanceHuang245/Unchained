@@ -7,7 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
-import 'package:unchained/utils/client.dart';
+import 'package:unchained/utils/rathole_config_manager.dart';
 import 'package:unchained/widgets/notification.dart';
 
 String? latestVersionTag;
@@ -212,7 +212,7 @@ void launchUpdaterAndExit(String updateDirPath) {
     return;
   }
 
-  stopRathole();
+  RatholeConfigManager.stopRathole();
   appWindow.close();
 }
 

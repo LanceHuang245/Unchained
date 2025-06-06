@@ -1,9 +1,9 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:unchained/app_constant.dart';
-import 'package:unchained/pages/Home/view.dart';
-import 'package:unchained/pages/Settings/view.dart';
-import 'package:unchained/utils/client.dart';
+import 'package:unchained/pages/home/view.dart';
+import 'package:unchained/pages/settings/view.dart';
+import 'package:unchained/utils/rathole_config_manager.dart';
 
 class NavigationWidget extends StatefulWidget {
   const NavigationWidget({super.key});
@@ -58,7 +58,7 @@ class NavigationWidgetState extends State<NavigationWidget> {
               height: 60,
               child: CloseWindowButton(
                 onPressed: () async {
-                  await stopRathole();
+                  await RatholeConfigManager.stopRathole();
                   appWindow.close();
                 },
               ),

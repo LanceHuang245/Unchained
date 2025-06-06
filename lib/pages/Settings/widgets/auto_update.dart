@@ -22,10 +22,12 @@ class AutoUpdateWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 6),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Icon(
-                  FluentIcons.update_restore,
-                  size: 14,
+                  FluentIcons.disable_updates,
+                  size: 15,
                 ),
                 const SizedBox(width: 17),
                 Column(

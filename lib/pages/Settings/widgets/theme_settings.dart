@@ -3,11 +3,15 @@ import 'package:fluent_ui/fluent_ui.dart';
 class ThemeSettingsWidget extends StatelessWidget {
   final ThemeMode currentMode;
   final Future<void> Function(ThemeMode) onModeChanged;
+  final Color currentAccentColor;
+  final Future<void> Function(Color) onAccentColorChanged;
 
   const ThemeSettingsWidget({
     super.key,
     required this.currentMode,
     required this.onModeChanged,
+    required this.currentAccentColor,
+    required this.onAccentColorChanged,
   });
 
   @override
@@ -35,12 +39,13 @@ class ThemeSettingsWidget extends StatelessWidget {
             ],
           ),
         ),
-        content: Column(
+        content: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   RadioButton(
                     content: const Text('跟随系统'),
@@ -61,6 +66,39 @@ class ThemeSettingsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            const SizedBox(width: 50),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      '选择主要颜色',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 10),
+                    Button(
+                        onPressed: () {
+                          onAccentColorChanged(Colors.blue);
+                        },
+                        child: const Text("恢复默认颜色")),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ColorPicker(
+                  color: currentAccentColor,
+                  onChanged: (color) {
+                    onAccentColorChanged(color);
+                  },
+                  colorSpectrumShape: ColorSpectrumShape.box,
+                  isMoreButtonVisible: true,
+                  isColorSliderVisible: true,
+                  isColorChannelTextInputVisible: true,
+                  isHexInputVisible: true,
+                  isAlphaEnabled: false,
+                ),
+              ],
             ),
           ],
         ),

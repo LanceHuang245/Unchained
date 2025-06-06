@@ -1,11 +1,12 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/main.dart';
-import 'package:unchained/pages/Settings/widgets/about.dart';
-import 'package:unchained/pages/Settings/widgets/auto_update.dart';
-import 'package:unchained/pages/Settings/widgets/check_update.dart';
-import 'package:unchained/pages/Settings/widgets/proxy_settings.dart';
-import 'package:unchained/pages/Settings/widgets/theme_settings.dart';
+import 'package:unchained/pages/settings/widgets/about.dart';
+import 'package:unchained/pages/settings/widgets/auto_update.dart';
+import 'package:unchained/pages/settings/widgets/check_update.dart';
+import 'package:unchained/pages/settings/widgets/proxy_settings.dart';
+import 'package:unchained/pages/settings/widgets/theme_settings.dart';
+import 'package:unchained/utils/theme_color.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -90,6 +91,11 @@ class SettingsPageState extends State<SettingsPage> {
             ThemeSettingsWidget(
               currentMode: _currentMode,
               onModeChanged: _changeMode,
+              currentAccentColor: accentColorNotifier.value,
+              onAccentColorChanged: (color) async {
+                accentColorNotifier.value = color;
+                saveAccentColor(color);
+              },
             ),
             const SizedBox(height: 3),
             AutoUpdateWidget(

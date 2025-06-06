@@ -3,19 +3,20 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
 import 'package:unchained/utils/app_updater.dart';
-import 'package:unchained/utils/client.dart';
+import 'package:unchained/utils/rathole_config_manager.dart';
+import 'package:unchained/utils/theme_color.dart';
 import 'package:unchained/widgets/navigation.dart';
 import 'package:unchained/widgets/notification.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// 全局 ThemeMode 通知器
 final themeModeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
+
+late final ValueNotifier<Color> accentColorNotifier;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 读取持久化的主题模式
   final prefs = await SharedPreferences.getInstance();
   final saved = prefs.getString('theme_mode') ?? 'system';
   themeModeNotifier.value = ThemeMode.values.firstWhere(
@@ -23,11 +24,13 @@ void main() async {
     orElse: () => ThemeMode.system,
   );
 
-  // 检查是否启用自动更新
+  await initAccentColor();
+
   final autoUpdateChecked = prefs.getBool('auto_update_checked') ?? true;
 
-  // 检查Toml文件是否存在，没有则初始化
-  await initRatholeClientToml();
+  await RatholeConfigManager.readRatholeConfigFrom(
+    '${AppConstant.assetsPath}rathole/client_1.toml',
+  );
 
   runApp(MyApp(
     shouldCheckUpdate: autoUpdateChecked,
@@ -79,16 +82,27 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeModeNotifier,
-      builder: (context, mode, _) {
-        return FluentApp(
-          title: AppConstant.appName,
-          navigatorKey: navigatorKey,
-          themeMode: mode,
-          theme: FluentThemeData(brightness: Brightness.light),
-          darkTheme: FluentThemeData(brightness: Brightness.dark),
-          home: const NavigationWidget(),
+    return ValueListenableBuilder<Color>(
+      valueListenable: accentColorNotifier,
+      builder: (context, accentColor, _) {
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: themeModeNotifier,
+          builder: (context, mode, _) {
+            return FluentApp(
+              title: AppConstant.appName,
+              navigatorKey: navigatorKey,
+              themeMode: mode,
+              theme: FluentThemeData(
+                brightness: Brightness.light,
+                accentColor: accentColor.toAccentColor(),
+              ),
+              darkTheme: FluentThemeData(
+                brightness: Brightness.dark,
+                accentColor: accentColor.toAccentColor(),
+              ),
+              home: const NavigationWidget(),
+            );
+          },
         );
       },
     );

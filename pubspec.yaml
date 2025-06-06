@@ -35,5 +35,5 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/rathole.exe
+    - assets/rathole/rathole.exe
     - assets/app_icon.ico

@@ -22,7 +22,7 @@ class CheckUpdateWidget extends StatelessWidget {
               children: [
                 const Icon(
                   FluentIcons.update_restore,
-                  size: 14,
+                  size: 15,
                 ),
                 const SizedBox(width: 17),
                 Column(
