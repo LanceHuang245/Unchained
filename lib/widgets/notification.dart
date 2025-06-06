@@ -2,22 +2,20 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void showContentDialog(BuildContext context, String title, content) async {
-  await showDialog(
-    context: context,
-    builder: (context) => ContentDialog(
+void showBottomNotification(BuildContext context, String title, content,
+    InfoBarSeverity serverity) async {
+  await displayInfoBar(
+    context,
+    builder: (context, close) => InfoBar(
       title: Text(title),
       content: Text(
         content,
       ),
-      actions: [
-        FilledButton(
-          child: const Text('好'),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ],
+      action: IconButton(
+        icon: const Icon(FluentIcons.clear),
+        onPressed: close,
+      ),
+      severity: serverity,
     ),
   );
 }

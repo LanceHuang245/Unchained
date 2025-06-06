@@ -1,11 +1,9 @@
 import 'dart:io';
 
-// TODO: 编译时记得修改
-// const Path = "data/flutter_assets/assets/";
-const Path = "assets/";
+import 'package:unchained/app_constant.dart';
 
 Future<void> initRatholeClientToml() async {
-  final file = File('${Path}client.toml');
+  final file = File('${AppConstant.assetsPath}client.toml');
   if (!await file.exists()) {
     await file.create(recursive: true);
     await file.writeAsString('''
@@ -19,7 +17,7 @@ remote_addr = ""
 bool saveRatholeFile(String service, remoteAddr, token, localAddr, type,
     bool nodelay, int retryInterval) {
   try {
-    final file = File('${Path}client.toml');
+    final file = File('${AppConstant.assetsPath}client.toml');
     final content = '''
 # client.toml
 [client]

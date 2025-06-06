@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:toml/toml.dart';
+import 'package:unchained/app_constant.dart';
 import 'package:unchained/classes/service_config.dart';
-import 'package:unchained/utils/client.dart';
 
 class ConfigManager {
   static Future<Map<String, dynamic>> readRatholeConfig() async {
-    final file = File('${Path}client.toml');
+    final file = File('${AppConstant.assetsPath}client.toml');
     if (!await file.exists()) {
       return {'remoteAddr': '', 'services': <RatholeServiceConfig>[]};
     }
@@ -49,7 +49,7 @@ class ConfigManager {
       }
     }
 
-    final file = File('${Path}client.toml');
+    final file = File('${AppConstant.assetsPath}client.toml');
     final sb = StringBuffer();
     sb.writeln('# client.toml');
     sb.writeln('[client]');

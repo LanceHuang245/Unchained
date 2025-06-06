@@ -17,10 +17,10 @@ class AutoUpdateWidget extends StatelessWidget {
       child: Card(
         borderRadius: const BorderRadiusGeometry.all(Radius.circular(5.0)),
         child: SizedBox(
-          height: 44,
+          height: 41,
           width: double.infinity,
           child: Padding(
-            padding: const EdgeInsets.only(left: 6, top: 5, bottom: 5),
+            padding: const EdgeInsets.only(left: 6),
             child: Row(
               children: [
                 const Icon(
@@ -29,7 +29,7 @@ class AutoUpdateWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 17),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text("自动检查更新"),

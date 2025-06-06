@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:unchained/app_constant.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:unchained/classes/log_formatter.dart';
@@ -91,7 +92,7 @@ class HomePageState extends State<HomePage>
     _process = await Process.start(
       'cmd',
       ['/c', command],
-      workingDirectory: Path,
+      workingDirectory: AppConstant.assetsPath,
     );
     _process!.stdout.transform(utf8.decoder).listen((data) {
       for (var line in data.split('\n')) {
@@ -146,12 +147,13 @@ class HomePageState extends State<HomePage>
     setState(() {
       _slideController.reverse();
     });
-    showContentDialog(context, '通知', '已停止转发服务。');
+    showBottomNotification(context, '通知', '已停止转发服务。', InfoBarSeverity.warning);
   }
 
   void _startProcess() {
     if (!ConfigManager.saveRatholeConfig(remoteAddrController.text, services)) {
-      showContentDialog(context, '错误', '请检查输入内容是否为空。');
+      showBottomNotification(
+          context, '错误', '请检查输入内容是否为空。', InfoBarSeverity.error);
       return;
     }
     setState(() {
@@ -160,8 +162,8 @@ class HomePageState extends State<HomePage>
     });
     _slideController.forward();
     runCommand('rathole.exe client.toml');
-    showContentDialog(
-        context, '通知', '请查看日志是否出现对应服务的Control channel established。');
+    showBottomNotification(context, '通知',
+        '请查看日志是否出现对应服务的Control channel established。', InfoBarSeverity.success);
   }
 
   @override

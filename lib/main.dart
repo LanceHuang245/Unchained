@@ -29,7 +29,6 @@ void main() async {
   // 检查Toml文件是否存在，没有则初始化
   await initRatholeClientToml();
 
-  // 传递状态给MyApp
   runApp(MyApp(
     shouldCheckUpdate: autoUpdateChecked,
   ));
@@ -87,10 +86,8 @@ class _MyAppState extends State<MyApp> {
           title: AppConstant.appName,
           navigatorKey: navigatorKey,
           themeMode: mode,
-          theme:
-              FluentThemeData(brightness: Brightness.light, fontFamily: "msyh"),
-          darkTheme:
-              FluentThemeData(brightness: Brightness.dark, fontFamily: "msyh"),
+          theme: FluentThemeData(brightness: Brightness.light),
+          darkTheme: FluentThemeData(brightness: Brightness.dark),
           home: const NavigationWidget(),
         );
       },

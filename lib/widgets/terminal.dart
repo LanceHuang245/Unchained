@@ -48,7 +48,7 @@ class Terminal extends StatelessWidget {
               child: RichText(
                 text: TextSpan(
                   style: TextStyle(
-                    fontFamily: 'Firacode',
+                    fontFamily: 'Consolas',
                     fontSize: 14,
                     color: FluentTheme.of(context)
                         .resources

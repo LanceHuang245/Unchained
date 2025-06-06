@@ -24,34 +24,12 @@ class RatholeServiceTile extends StatefulWidget {
 }
 
 class _RatholeServiceTileState extends State<RatholeServiceTile> {
-  Future<void> _showDeleteDialog() async {
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) {
-        return ContentDialog(
-          title: const Text('删除服务'),
-          content: const Text('确定要删除该服务吗？此操作无法撤销。'),
-          actions: [
-            Button(
-              child: const Text('取消'),
-              onPressed: () {
-                Navigator.pop(ctx, 'cancel');
-              },
-            ),
-            FilledButton(
-              child: const Text('删除'),
-              onPressed: () {
-                Navigator.pop(ctx, 'delete');
-              },
-            ),
-          ],
-        );
-      },
-    );
+  final FlyoutController _deleteFlyoutController = FlyoutController();
 
-    if (result == 'delete') {
-      widget.onDelete();
-    }
+  @override
+  void dispose() {
+    _deleteFlyoutController.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,9 +57,68 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
                   '服务 ${widget.index + 1}',
                   style: FluentTheme.of(context).typography.subtitle,
                 ),
-                IconButton(
-                  icon: const Icon(FluentIcons.delete),
-                  onPressed: widget.processing ? null : _showDeleteDialog,
+                FlyoutTarget(
+                  controller: _deleteFlyoutController,
+                  child: IconButton(
+                    icon: const Icon(FluentIcons.delete),
+                    onPressed: widget.processing
+                        ? null
+                        : () {
+                            _deleteFlyoutController.showFlyout(
+                              autoModeConfiguration: FlyoutAutoConfiguration(
+                                preferredMode: FlyoutPlacementMode.topCenter,
+                              ),
+                              barrierDismissible: true,
+                              dismissOnPointerMoveAway: false,
+                              dismissWithEsc: true,
+                              builder: (context) {
+                                return FlyoutContent(
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 300),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        '删除服务',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8.0),
+                                      const Text(
+                                        '确定要删除该服务吗？此操作无法撤销。',
+                                      ),
+                                      const SizedBox(height: 12.0),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Button(
+                                            child: const Text('取消'),
+                                            onPressed: () {
+                                              Flyout.of(context).close();
+                                            },
+                                          ),
+                                          const SizedBox(width: 8.0),
+                                          FilledButton(
+                                            child: const Text('删除'),
+                                            onPressed: () {
+                                              Flyout.of(context).close();
+                                              widget.onDelete();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                  ),
                 ),
               ],
             ),
@@ -96,27 +133,37 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
             Row(
               children: [
                 Expanded(
-                  child: TextBox(
-                    enabled: !widget.processing,
-                    placeholder: '本地服务地址与端口',
-                    controller: widget.service.localAddrController,
-                    onChanged: (_) => widget.onUpdate(),
+                  child: Tooltip(
+                    message: '输入你想转发的本地服务地址与端口，如：127.0.0.1:8080',
+                    displayHorizontally: true,
+                    useMousePosition: false,
+                    child: TextBox(
+                      enabled: !widget.processing,
+                      placeholder: '本地服务地址与端口',
+                      controller: widget.service.localAddrController,
+                      onChanged: (_) => widget.onUpdate(),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                ComboBox<String>(
-                  value: widget.service.type,
-                  items: ['tcp', 'udp']
-                      .map(
-                        (t) => ComboBoxItem(value: t, child: Text(t)),
-                      )
-                      .toList(),
-                  onChanged: widget.processing
-                      ? null
-                      : (v) {
-                          setState(() => widget.service.type = v!);
-                          widget.onUpdate();
-                        },
+                Tooltip(
+                  message: '选择转发的服务类型',
+                  displayHorizontally: true,
+                  useMousePosition: false,
+                  child: ComboBox<String>(
+                    value: widget.service.type,
+                    items: ['tcp', 'udp']
+                        .map(
+                          (t) => ComboBoxItem(value: t, child: Text(t)),
+                        )
+                        .toList(),
+                    onChanged: widget.processing
+                        ? null
+                        : (v) {
+                            setState(() => widget.service.type = v!);
+                            widget.onUpdate();
+                          },
+                  ),
                 ),
               ],
             ),
@@ -144,7 +191,9 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
                     const Padding(
                       padding: EdgeInsets.only(left: 5),
                       child: Tooltip(
-                        message: '通过降低部分带宽来优化延迟，关闭后带宽提高但延迟增加。',
+                        displayHorizontally: true,
+                        useMousePosition: false,
+                        message: '通过降低部分带宽来优化延迟，关闭后带宽提高但延迟增加',
                         child: Text('延迟优化'),
                       ),
                     ),
@@ -152,12 +201,17 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: TextBox(
-                    keyboardType: TextInputType.number,
-                    enabled: !widget.processing,
-                    placeholder: '重试间隔(s)',
-                    controller: widget.service.retryIntervalController,
-                    onChanged: (_) => widget.onUpdate(),
+                  child: Tooltip(
+                    displayHorizontally: true,
+                    useMousePosition: true,
+                    message: '当服务端连接失败时，每隔*秒重试一次',
+                    child: TextBox(
+                      keyboardType: TextInputType.number,
+                      enabled: !widget.processing,
+                      placeholder: '重试间隔(s)',
+                      controller: widget.service.retryIntervalController,
+                      onChanged: (_) => widget.onUpdate(),
+                    ),
                   ),
                 ),
               ],
