@@ -35,11 +35,3 @@ flutter:
   assets:
     - assets/rathole.exe
     - assets/app_icon.ico
-
-  fonts:
-    - family: MSYH
-      fonts:
-        - asset: assets/msyh.ttc
-    - family: firacode
-      fonts:
-        - asset: assets/firacode.ttf
