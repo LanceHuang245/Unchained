@@ -3,7 +3,6 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
 import 'package:unchained/utils/app_updater.dart';
-import 'package:unchained/utils/rathole_config_manager.dart';
 import 'package:unchained/utils/theme_color.dart';
 import 'package:unchained/widgets/navigation.dart';
 import 'package:unchained/widgets/notification.dart';
@@ -28,13 +27,7 @@ void main() async {
 
   final autoUpdateChecked = prefs.getBool('auto_update_checked') ?? true;
 
-  await RatholeConfigManager.readRatholeConfigFrom(
-    '${AppConstant.assetsPath}rathole/client_1.toml',
-  );
-
-  runApp(MyApp(
-    shouldCheckUpdate: autoUpdateChecked,
-  ));
+  runApp(MyApp(shouldCheckUpdate: autoUpdateChecked));
 
   // 启动时设置窗口大小
   doWhenWindowReady(() {
@@ -48,10 +41,7 @@ void main() async {
 class MyApp extends StatefulWidget {
   final bool shouldCheckUpdate;
 
-  const MyApp({
-    super.key,
-    required this.shouldCheckUpdate,
-  });
+  const MyApp({super.key, required this.shouldCheckUpdate});
 
   @override
   State<MyApp> createState() => _MyAppState();
