@@ -4,8 +4,7 @@ class Terminal extends StatelessWidget {
   final List<String> lines;
   final bool visible;
 
-  const Terminal({Key? key, required this.lines, required this.visible})
-      : super(key: key);
+  const Terminal({super.key, required this.lines, required this.visible});
 
   @override
   Widget build(BuildContext context) {

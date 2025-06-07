@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:unchained/app_constant.dart';
 import 'package:unchained/utils/app_updater.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -27,7 +28,20 @@ void showUpdateDialog(BuildContext context,
   await showDialog(
     context: context,
     builder: (context) => ContentDialog(
-      title: Text("检查到新版本$title"),
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("检查到新版本$title"),
+          Text(
+            "当前版本：${AppConstant.appVersion}",
+            style: TextStyle(
+              color: FluentTheme.of(context).resources.textFillColorSecondary,
+              fontSize: 14,
+            ),
+          )
+        ],
+      ),
       content: SizedBox(
         height: 300,
         width: 400,

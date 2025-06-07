@@ -3,11 +3,10 @@ description: "A new Flutter project."
 
 publish_to: 'none'
 
-version: 1.2.2+1
+version: 1.2.3+1
 
 environment:
   sdk: ^3.5.1
-
 
 dependencies:
   flutter:
@@ -16,11 +15,11 @@ dependencies:
   fluent_ui:
   bitsdojo_window:
   toml:
-  cupertino_icons: ^1.0.8
+  cupertino_icons: 
   url_launcher:
   shared_preferences: 
-  dio: ^5.0.0
-  flutter_markdown: 
+  dio: 
+  flutter_markdown_plus: 
   archive: 
   path_provider: 
 
@@ -28,7 +27,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
 

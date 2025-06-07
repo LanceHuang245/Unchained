@@ -2,10 +2,41 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:unchained/utils/app_updater.dart';
 import 'package:unchained/widgets/notification.dart';
 
-class CheckUpdateWidget extends StatelessWidget {
-  const CheckUpdateWidget({
-    super.key,
-  });
+class CheckUpdateWidget extends StatefulWidget {
+  const CheckUpdateWidget({super.key});
+
+  @override
+  CheckUpdateWidgetState createState() => CheckUpdateWidgetState();
+}
+
+class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
+  bool _checking = false;
+
+  Future<void> _onCheckPressed() async {
+    if (!mounted) return;
+    setState(() => _checking = true);
+
+    final updateAvailable = await checkUpdate();
+    if (!mounted) return;
+
+    if (updateAvailable) {
+      showUpdateDialog(
+        context,
+        title: latestVersionTag ?? '',
+        subtitle: latestReleaseBody ?? '获取更新信息失败',
+      );
+    } else {
+      showBottomNotification(
+        context,
+        "无需更新",
+        "当前已是最新版本。",
+        InfoBarSeverity.success,
+      );
+    }
+
+    if (!mounted) return;
+    setState(() => _checking = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,25 +73,12 @@ class CheckUpdateWidget extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                FilledButton(
-                    onPressed: () async {
-                      final update = await checkUpdate();
-                      if (update) {
-                        showUpdateDialog(
-                          context,
-                          title: latestVersionTag ?? '',
-                          subtitle: latestReleaseBody ?? '获取更新信息失败',
-                        );
-                      } else {
-                        showBottomNotification(
-                          context,
-                          "无需更新",
-                          "当前已是最新版本。",
-                          InfoBarSeverity.success,
-                        );
-                      }
-                    },
-                    child: const Text("检查更新"))
+                _checking
+                    ? const ProgressRing()
+                    : FilledButton(
+                        onPressed: _onCheckPressed,
+                        child: const Text("检查更新"),
+                      )
               ],
             ),
           ),

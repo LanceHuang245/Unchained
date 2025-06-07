@@ -175,7 +175,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
     }
   }
 
-  void _addService() {
+  void addService() {
     if (!mounted) return;
 
     final newIndex = services.length;
@@ -201,7 +201,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
     );
   }
 
-  void _handleToggleProcess() {
+  void runProcess() {
     if (processing) {
       _stopProcess();
     } else {
@@ -364,8 +364,8 @@ class RatholeHomePageState extends State<RatholeHomePage>
             bottom: 24,
             child: ActionButtons(
               processing: processing,
-              onAddService: _addService,
-              onToggleProcess: _handleToggleProcess,
+              onAddService: addService,
+              onToggleProcess: runProcess,
             ),
           ),
         ],

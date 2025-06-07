@@ -8,7 +8,7 @@ class RatholeConfigManager {
     final file = File(fullPath);
 
     if (!await file.exists()) {
-      await _createEmptyTemplate(file);
+      await createEmptyTemplate(file);
       return {
         'remoteAddr': '',
         'services': <RatholeServiceConfig>[],
@@ -95,8 +95,8 @@ class RatholeConfigManager {
     }
   }
 
-  static Future<void> _createEmptyTemplate(File file) async {
-    final defaultContent = '''
+  static Future<void> createEmptyTemplate(File file) async {
+    const defaultContent = '''
 [client]
 remote_addr = ""
 

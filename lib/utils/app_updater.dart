@@ -26,14 +26,12 @@ Future<bool> checkUpdate() async {
     }
 
     final dio = Dio();
-
     if (proxyAddr.isNotEmpty) {
-      (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-          (HttpClient client) {
+      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
         client.findProxy = (Uri uri) {
           return "PROXY $proxyAddr";
         };
-
         client.badCertificateCallback =
             (X509Certificate cert, String host, int port) => true;
         return client;
@@ -126,8 +124,8 @@ Future<String?> downloadAndUnzipToTempDir() async {
 
     final dio = Dio();
     if (proxyAddr.isNotEmpty) {
-      (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-          (HttpClient client) {
+      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
         client.findProxy = (Uri uri) {
           return "PROXY $proxyAddr";
         };
