@@ -7,7 +7,7 @@ import 'package:unchained/classes/log_formatter.dart';
 import 'package:unchained/classes/service_config.dart';
 import 'package:unchained/pages/home/rathole_home/widgets/action_buttons.dart';
 import 'package:unchained/pages/home/rathole_home/widgets/rathole_service_tile.dart';
-import 'package:unchained/utils/rathole_config_manager.dart';
+import 'package:unchained/classes/rathole_config_manager.dart';
 import 'package:unchained/widgets/notification.dart';
 import 'package:unchained/widgets/terminal.dart';
 
@@ -55,25 +55,27 @@ class RatholeHomePageState extends State<RatholeHomePage>
   void _initializeConfig() {
     final fullPath =
         '${AppConstant.assetsPath}rathole/${widget.configFileName}';
-    RatholeConfigManager.readRatholeConfigFrom(fullPath).then((config) {
-      if (!mounted) return;
+    RatholeConfigManager.readRatholeConfigFrom(fullPath)
+        .then((config) {
+          if (!mounted) return;
 
-      remoteAddrController.text = config['remoteAddr'];
-      services = config['services'];
-      for (var i = 0; i < services.length; i++) {
-        _listKey.currentState?.insertItem(i, duration: Duration.zero);
-      }
-      setState(() {});
-    }).catchError((error) {
-      if (mounted) {
-        showBottomNotification(
-          context,
-          '错误',
-          '配置文件读取失败: $error',
-          InfoBarSeverity.error,
-        );
-      }
-    });
+          remoteAddrController.text = config['remoteAddr'];
+          services = config['services'];
+          for (var i = 0; i < services.length; i++) {
+            _listKey.currentState?.insertItem(i, duration: Duration.zero);
+          }
+          setState(() {});
+        })
+        .catchError((error) {
+          if (mounted) {
+            showBottomNotification(
+              context,
+              '错误',
+              '配置文件读取失败: $error',
+              InfoBarSeverity.error,
+            );
+          }
+        });
   }
 
   void _initializeAnimations() {
@@ -81,13 +83,10 @@ class RatholeHomePageState extends State<RatholeHomePage>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(1.0, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeInOut,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(1.0, 0), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
+        );
     _slideController.addStatusListener((status) {
       if (status == AnimationStatus.dismissed && mounted) {
         setState(() {
@@ -123,36 +122,40 @@ class RatholeHomePageState extends State<RatholeHomePage>
     });
 
     try {
-      _process = await Process.start(
-        'cmd',
-        ['/c', command],
-        workingDirectory: "${AppConstant.assetsPath}rathole/",
-      );
+      _process = await Process.start('cmd', [
+        '/c',
+        command,
+      ], workingDirectory: "${AppConstant.assetsPath}rathole/");
 
-      _stdoutSubscription =
-          _process!.stdout.transform(utf8.decoder).listen((data) {
-        if (!mounted) return;
+      _stdoutSubscription = _process!.stdout
+          .transform(utf8.decoder)
+          .listen(
+            (data) {
+              if (!mounted) return;
 
-        for (var line in data.split('\n')) {
-          if (line.trim().isEmpty) continue;
-          final f = LogFormatter.formatLine(line);
-          if (mounted) {
-            setState(() => formattedLines.add(f));
-          }
-        }
-      }, onError: (error) {
-        if (mounted) {
-          showBottomNotification(
-            context,
-            '错误',
-            '$error',
-            InfoBarSeverity.error,
+              for (var line in data.split('\n')) {
+                if (line.trim().isEmpty) continue;
+                final f = LogFormatter.formatLine(line);
+                if (mounted) {
+                  setState(() => formattedLines.add(f));
+                }
+              }
+            },
+            onError: (error) {
+              if (mounted) {
+                showBottomNotification(
+                  context,
+                  '错误',
+                  '$error',
+                  InfoBarSeverity.error,
+                );
+              }
+            },
           );
-        }
-      });
 
-      _stderrSubscription =
-          _process!.stderr.transform(utf8.decoder).listen((data) {
+      _stderrSubscription = _process!.stderr.transform(utf8.decoder).listen((
+        data,
+      ) {
         if (!mounted) return;
 
         for (var line in data.split('\n')) {
@@ -202,11 +205,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
   }
 
   void runProcess() {
-    if (processing) {
-      _stopProcess();
-    } else {
-      _startProcess();
-    }
+    processing ? _stopProcess() : _startProcess();
   }
 
   void _stopProcess() async {
@@ -241,12 +240,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
       return;
     }
     if (services.isEmpty) {
-      showBottomNotification(
-        context,
-        '错误',
-        '请添加服务。',
-        InfoBarSeverity.error,
-      );
+      showBottomNotification(context, '错误', '请添加服务。', InfoBarSeverity.error);
       return;
     }
 
@@ -294,8 +288,10 @@ class RatholeHomePageState extends State<RatholeHomePage>
     return ScaffoldPage(
       header: Padding(
         padding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
-        child:
-            Text('Rathole客户端', style: FluentTheme.of(context).typography.title),
+        child: Text(
+          'Rathole客户端',
+          style: FluentTheme.of(context).typography.title,
+        ),
       ),
       content: Stack(
         children: [

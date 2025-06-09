@@ -21,18 +21,23 @@ class ThemeSettingsWidget extends StatelessWidget {
       child: Expander(
         leading: const Icon(FluentIcons.light),
         header: Padding(
-          padding:
-              const EdgeInsets.only(left: 5, right: 20, top: 15, bottom: 15),
+          padding: const EdgeInsets.only(
+            left: 5,
+            right: 20,
+            top: 15,
+            bottom: 15,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text("主题设置"),
               Text(
-                "允许用户根据喜好进行主题调整。",
+                "允许用户根据喜好进行主题自定义。",
                 style: TextStyle(
-                  color:
-                      FluentTheme.of(context).resources.textFillColorSecondary,
+                  color: FluentTheme.of(
+                    context,
+                  ).resources.textFillColorSecondary,
                   fontSize: 12,
                 ),
               ),
@@ -74,15 +79,16 @@ class ThemeSettingsWidget extends StatelessWidget {
                 Row(
                   children: [
                     const Text(
-                      '选择主要颜色',
+                      '选取主题颜色',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(width: 10),
                     Button(
-                        onPressed: () {
-                          onAccentColorChanged(Colors.blue);
-                        },
-                        child: const Text("恢复默认颜色")),
+                      onPressed: () {
+                        onAccentColorChanged(Colors.blue);
+                      },
+                      child: const Text("恢复默认"),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),

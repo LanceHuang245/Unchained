@@ -55,16 +55,20 @@ class _MyAppState extends State<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.shouldCheckUpdate && mounted) {
         debugPrint("检查更新中...");
-        final update = await checkUpdate();
-        if (update && mounted) {
-          final context = navigatorKey.currentContext;
-          if (context != null) {
-            showUpdateDialog(
-              context,
-              title: latestVersionTag ?? '',
-              subtitle: latestReleaseBody ?? '获取更新信息失败',
-            );
+        try {
+          final update = await checkUpdate();
+          if (update && mounted) {
+            final context = navigatorKey.currentContext;
+            if (context != null) {
+              showUpdateDialog(
+                context,
+                title: latestVersionTag ?? '',
+                subtitle: latestReleaseBody ?? '获取更新信息失败',
+              );
+            }
           }
+        } catch (e) {
+          debugPrint("检查更新时发生错误：$e");
         }
       }
     });

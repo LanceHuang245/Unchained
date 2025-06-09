@@ -25,10 +25,7 @@ class AutoUpdateWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(
-                  FluentIcons.disable_updates,
-                  size: 15,
-                ),
+                const Icon(FluentIcons.disable_updates, size: 15),
                 const SizedBox(width: 17),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -36,21 +33,18 @@ class AutoUpdateWidget extends StatelessWidget {
                   children: [
                     const Text("自动检查更新"),
                     Text(
-                      "将在每次启动时自动检测是否有可用更新，若检测到新版本，将弹出对话框进行提醒。（部分地区需配置网络代理）",
+                      "在每次启动时自动检查可用更新，若检测到新版本，将弹出对话框进行提醒。（部分地区需配置网络代理）",
                       style: TextStyle(
-                        color: FluentTheme.of(context)
-                            .resources
-                            .textFillColorSecondary,
+                        color: FluentTheme.of(
+                          context,
+                        ).resources.textFillColorSecondary,
                         fontSize: 12,
                       ),
                     ),
                   ],
                 ),
                 const Spacer(),
-                ToggleSwitch(
-                  checked: checked,
-                  onChanged: onChanged,
-                ),
+                ToggleSwitch(checked: checked, onChanged: onChanged),
               ],
             ),
           ),

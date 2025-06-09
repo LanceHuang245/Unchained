@@ -17,18 +17,23 @@ class ProxySettingsWidget extends StatelessWidget {
       child: Expander(
         leading: const Icon(FluentIcons.internet_sharing),
         header: Padding(
-          padding:
-              const EdgeInsets.only(left: 5, right: 20, top: 15, bottom: 15),
+          padding: const EdgeInsets.only(
+            left: 6,
+            right: 20,
+            top: 15,
+            bottom: 15,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text("代理设置"),
               Text(
-                "用于Unchained的网络代理，不影响您的网络转发功能。",
+                "用于Unchained的网络代理，通常用于检查、下载更新功能，不影响中继转发功能。",
                 style: TextStyle(
-                  color:
-                      FluentTheme.of(context).resources.textFillColorSecondary,
+                  color: FluentTheme.of(
+                    context,
+                  ).resources.textFillColorSecondary,
                   fontSize: 12,
                 ),
               ),
@@ -40,9 +45,9 @@ class ProxySettingsWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: InfoLabel(
-                label: '代理服务器地址(http/https)',
+                label: '代理服务器地址',
                 child: TextBox(
-                  placeholder: "http(s)://127.0.0.1:10808",
+                  placeholder: "127.0.0.1:7890",
                   controller: controller,
                   onChanged: onChanged,
                 ),

@@ -14,14 +14,15 @@ class AboutWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(left: 10),
       child: Expander(
-        leading: Image.asset(
-          "assets/app_icon.ico",
-          width: 20,
-          height: 20,
-        ),
+        contentPadding: EdgeInsets.all(0),
+        leading: Image.asset("assets/app_icon.ico", width: 20, height: 20),
         header: Padding(
-          padding:
-              const EdgeInsets.only(left: 5, right: 20, top: 15, bottom: 15),
+          padding: const EdgeInsets.only(
+            left: 5,
+            right: 20,
+            top: 15,
+            bottom: 15,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,8 +31,9 @@ class AboutWidget extends StatelessWidget {
               Text(
                 "由 ClaretWheel1481 发布",
                 style: TextStyle(
-                  color:
-                      FluentTheme.of(context).resources.textFillColorSecondary,
+                  color: FluentTheme.of(
+                    context,
+                  ).resources.textFillColorSecondary,
                   fontSize: 12,
                 ),
               ),
@@ -42,23 +44,25 @@ class AboutWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 5, bottom: 5, left: 35),
+              padding: EdgeInsets.only(top: 16, bottom: 5, left: 55),
               child: Text("链接"),
             ),
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.only(left: 25),
+                  padding: const EdgeInsets.only(left: 45, bottom: 10),
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: HyperlinkButton(
                       style: ButtonStyle(
-                        backgroundColor:
-                            WidgetStateProperty.all(Colors.transparent),
+                        backgroundColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
                       ),
                       onPressed: () {
                         _loadURL(
-                            'https://github.com/yujqiao/rathole/blob/main/README-zh.md');
+                          'https://github.com/yujqiao/rathole/blob/main/README-zh.md',
+                        );
                       },
                       child: const Text("Rathole使用帮助"),
                     ),
@@ -66,20 +70,22 @@ class AboutWidget extends StatelessWidget {
                 ),
               ],
             ),
+            SizedBox(width: double.infinity, child: Divider()),
             const Padding(
-              padding: EdgeInsets.only(top: 15, bottom: 5, left: 35),
+              padding: EdgeInsets.only(top: 15, bottom: 5, left: 55),
               child: Text("开放源代码库"),
             ),
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.only(left: 25),
+                  padding: const EdgeInsets.only(left: 45, bottom: 10),
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: HyperlinkButton(
                       style: ButtonStyle(
-                        backgroundColor:
-                            WidgetStateProperty.all(Colors.transparent),
+                        backgroundColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
                       ),
                       onPressed: () {
                         _loadURL('https://github.com/rapiz1/rathole');
@@ -89,17 +95,19 @@ class AboutWidget extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 25, bottom: 10),
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: HyperlinkButton(
                       style: ButtonStyle(
-                        backgroundColor:
-                            WidgetStateProperty.all(Colors.transparent),
+                        backgroundColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
                       ),
                       onPressed: () {
                         _loadURL(
-                            'https://github.com/ClaretWheel1481/Unchained');
+                          'https://github.com/ClaretWheel1481/Unchained',
+                        );
                       },
                       child: const Text(AppConstant.appName),
                     ),

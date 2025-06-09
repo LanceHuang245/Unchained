@@ -15,27 +15,37 @@ class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
   Future<void> _onCheckPressed() async {
     if (!mounted) return;
     setState(() => _checking = true);
+    try {
+      final updateAvailable = await checkUpdate();
+      if (!mounted) return;
 
-    final updateAvailable = await checkUpdate();
-    if (!mounted) return;
+      if (updateAvailable) {
+        showUpdateDialog(
+          context,
+          title: latestVersionTag ?? '',
+          subtitle: latestReleaseBody ?? '获取更新信息失败',
+        );
+      } else {
+        showBottomNotification(
+          context,
+          "已是最新版本",
+          "当前已是最新版本，无需更新。",
+          InfoBarSeverity.success,
+        );
+      }
 
-    if (updateAvailable) {
-      showUpdateDialog(
-        context,
-        title: latestVersionTag ?? '',
-        subtitle: latestReleaseBody ?? '获取更新信息失败',
-      );
-    } else {
+      if (!mounted) return;
+      setState(() => _checking = false);
+    } catch (e) {
+      debugPrint("检查更新失败：$e");
       showBottomNotification(
         context,
-        "无需更新",
-        "当前已是最新版本。",
-        InfoBarSeverity.success,
+        "检查更新失败",
+        "检查更新时发生错误，请检查网络或权限。",
+        InfoBarSeverity.error,
       );
+      setState(() => _checking = false);
     }
-
-    if (!mounted) return;
-    setState(() => _checking = false);
   }
 
   @override
@@ -51,10 +61,7 @@ class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
             padding: const EdgeInsets.only(left: 6),
             child: Row(
               children: [
-                const Icon(
-                  FluentIcons.update_restore,
-                  size: 15,
-                ),
+                const Icon(FluentIcons.update_restore, size: 15),
                 const SizedBox(width: 17),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -62,11 +69,11 @@ class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
                   children: [
                     const Text("检查更新"),
                     Text(
-                      "将检查一次更新，若检测到新版本，将弹出对话框进行提醒。（部分地区需配置网络代理）",
+                      "手动检查更新，若检测到新版本，将弹出对话框进行提醒。（部分地区需配置网络代理）",
                       style: TextStyle(
-                        color: FluentTheme.of(context)
-                            .resources
-                            .textFillColorSecondary,
+                        color: FluentTheme.of(
+                          context,
+                        ).resources.textFillColorSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -78,7 +85,7 @@ class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
                     : FilledButton(
                         onPressed: _onCheckPressed,
                         child: const Text("检查更新"),
-                      )
+                      ),
               ],
             ),
           ),

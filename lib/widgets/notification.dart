@@ -4,27 +4,29 @@ import 'package:unchained/app_constant.dart';
 import 'package:unchained/utils/app_updater.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void showBottomNotification(BuildContext context, String title, content,
-    InfoBarSeverity serverity) async {
+void showBottomNotification(
+  BuildContext context,
+  String title,
+  content,
+  InfoBarSeverity serverity,
+) async {
   await displayInfoBar(
     context,
     builder: (context, close) => InfoBar(
       title: Text(title),
-      content: Text(
-        content,
-      ),
-      action: IconButton(
-        icon: const Icon(FluentIcons.clear),
-        onPressed: close,
-      ),
+      content: Text(content),
+      action: IconButton(icon: const Icon(FluentIcons.clear), onPressed: close),
       severity: serverity,
     ),
   );
 }
 
 // 更新提示对话框
-void showUpdateDialog(BuildContext context,
-    {required String title, subtitle}) async {
+void showUpdateDialog(
+  BuildContext context, {
+  required String title,
+  subtitle,
+}) async {
   await showDialog(
     context: context,
     builder: (context) => ContentDialog(
@@ -39,15 +41,13 @@ void showUpdateDialog(BuildContext context,
               color: FluentTheme.of(context).resources.textFillColorSecondary,
               fontSize: 14,
             ),
-          )
+          ),
         ],
       ),
       content: SizedBox(
         height: 300,
         width: 400,
-        child: Markdown(
-          data: subtitle,
-        ),
+        child: Markdown(data: subtitle),
       ),
       actions: [
         Button(
@@ -71,9 +71,10 @@ void showUpdatingDialog(BuildContext context) async {
   await showDialog(
     context: context,
     builder: (context) => const ContentDialog(
-        title: Text("更新"),
-        content: SizedBox(child: ProgressBar()),
-        actions: null),
+      title: Text("更新"),
+      content: SizedBox(child: ProgressBar()),
+      actions: null,
+    ),
   );
 }
 

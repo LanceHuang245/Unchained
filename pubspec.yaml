@@ -3,7 +3,7 @@ description: "A new Flutter project."
 
 publish_to: 'none'
 
-version: 1.2.3+1
+version: 1.2.4+1
 
 environment:
   sdk: ^3.8.1
@@ -14,8 +14,7 @@ dependencies:
 
   fluent_ui:
   bitsdojo_window:
-  toml:
-  cupertino_icons: 
+  toml: 
   url_launcher:
   shared_preferences: 
   dio: 

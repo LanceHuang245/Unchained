@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:unchained/classes/log_formatter.dart';
 
 class Terminal extends StatelessWidget {
   final List<String> lines;
@@ -14,12 +15,12 @@ class Terminal extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-            color: FluentTheme.of(context).cardColor,
-            border: Border.all(
-                color: FluentTheme.of(context)
-                    .resources
-                    .controlStrokeColorDefault),
-            borderRadius: BorderRadius.circular(8)),
+          color: FluentTheme.of(context).cardColor,
+          border: Border.all(
+            color: FluentTheme.of(context).resources.controlStrokeColorDefault,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: ListView.builder(
           shrinkWrap: true,
           itemCount: lines.length,
@@ -30,17 +31,7 @@ class Terminal extends StatelessWidget {
             final content = parts[2];
 
             Color levelColor;
-            switch (level) {
-              case 'WARNING':
-                levelColor = Colors.red;
-                break;
-              case 'ERROR':
-                levelColor = Colors.red;
-                break;
-              case 'INFO':
-              default:
-                levelColor = Colors.green;
-            }
+            levelColor = LogFormatter.formatLevel(level);
 
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
@@ -49,18 +40,18 @@ class Terminal extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Consolas',
                     fontSize: 14,
-                    color: FluentTheme.of(context)
-                        .resources
-                        .textOnAccentFillColorPrimary,
+                    color: FluentTheme.of(
+                      context,
+                    ).resources.textOnAccentFillColorPrimary,
                   ),
                   children: [
                     if (time.isNotEmpty)
                       TextSpan(
                         text: '$time  ',
                         style: TextStyle(
-                          color: FluentTheme.of(context)
-                              .resources
-                              .textFillColorTertiary,
+                          color: FluentTheme.of(
+                            context,
+                          ).resources.textFillColorTertiary,
                         ),
                       ),
                     if (level.isNotEmpty)
@@ -74,7 +65,8 @@ class Terminal extends StatelessWidget {
                     TextSpan(
                       text: content,
                       style: TextStyle(
-                          color: FluentTheme.of(context).inactiveColor),
+                        color: FluentTheme.of(context).inactiveColor,
+                      ),
                     ),
                   ],
                 ),

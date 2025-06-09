@@ -73,8 +73,9 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
                               dismissWithEsc: true,
                               builder: (context) {
                                 return FlyoutContent(
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 300),
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 300,
+                                  ),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment:
@@ -88,9 +89,7 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
                                         ),
                                       ),
                                       const SizedBox(height: 8.0),
-                                      const Text(
-                                        '确定要删除该服务吗？此操作无法撤销。',
-                                      ),
+                                      const Text('确定要删除该服务吗？此操作无法撤销。'),
                                       const SizedBox(height: 12.0),
                                       Row(
                                         mainAxisAlignment:
@@ -153,9 +152,7 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
                   child: ComboBox<String>(
                     value: widget.service.type,
                     items: ['tcp', 'udp']
-                        .map(
-                          (t) => ComboBoxItem(value: t, child: Text(t)),
-                        )
+                        .map((t) => ComboBoxItem(value: t, child: Text(t)))
                         .toList(),
                     onChanged: widget.processing
                         ? null

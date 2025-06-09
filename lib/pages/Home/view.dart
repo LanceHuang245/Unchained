@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
 import 'package:unchained/pages/home/rathole_home/view.dart';
-import 'package:unchained/utils/rathole_config_manager.dart';
+import 'package:unchained/classes/rathole_config_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

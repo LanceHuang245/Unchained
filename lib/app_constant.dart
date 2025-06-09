@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart';
 class AppConstant {
   static const String appName = 'Unchained';
 
-  static const String appVersion = '1.2.3';
+  static const String appVersion = '1.2.4';
 
-  static String assetsPath =
-      kReleaseMode ? "data/flutter_assets/assets/" : "assets/";
+  static String assetsPath = kReleaseMode
+      ? "data/flutter_assets/assets/"
+      : "assets/";
 }

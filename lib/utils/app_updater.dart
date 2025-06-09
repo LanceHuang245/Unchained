@@ -7,7 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
-import 'package:unchained/utils/rathole_config_manager.dart';
+import 'package:unchained/classes/rathole_config_manager.dart';
 import 'package:unchained/widgets/notification.dart';
 
 String? latestVersionTag;
@@ -23,6 +23,10 @@ Future<bool> checkUpdate() async {
       proxyAddr = proxyAddr.replaceFirst('http://', '');
     } else if (proxyAddr.startsWith('https://')) {
       proxyAddr = proxyAddr.replaceFirst('https://', '');
+    } else if (proxyAddr.startsWith('socks://')) {
+      proxyAddr = proxyAddr.replaceFirst('socks://', '');
+    } else if (proxyAddr.startsWith('socks5://')) {
+      proxyAddr = proxyAddr.replaceFirst('socks5://', '');
     }
 
     final dio = Dio();
@@ -54,8 +58,9 @@ Future<bool> checkUpdate() async {
         return false;
       }
 
-      final String parsedLatestTag =
-          rawTagName.startsWith('v') ? rawTagName.substring(1) : rawTagName;
+      final String parsedLatestTag = rawTagName.startsWith('v')
+          ? rawTagName.substring(1)
+          : rawTagName;
 
       latestVersionTag = parsedLatestTag;
       latestReleaseBody = rawBody;
@@ -80,8 +85,9 @@ Future<bool> checkUpdate() async {
       int compareVersionStrings(String v1, String v2) {
         final parts1 = v1.split('.').map((e) => int.tryParse(e) ?? 0).toList();
         final parts2 = v2.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-        final len =
-            (parts1.length > parts2.length) ? parts1.length : parts2.length;
+        final len = (parts1.length > parts2.length)
+            ? parts1.length
+            : parts2.length;
         for (int i = 0; i < len; i++) {
           final num1 = (i < parts1.length) ? parts1[i] : 0;
           final num2 = (i < parts2.length) ? parts2[i] : 0;
@@ -101,8 +107,7 @@ Future<bool> checkUpdate() async {
       return false;
     }
   } catch (e) {
-    debugPrint("更新请求失败：$e");
-    return false;
+    rethrow;
   }
 }
 
@@ -120,6 +125,10 @@ Future<String?> downloadAndUnzipToTempDir() async {
       proxyAddr = proxyAddr.replaceFirst('http://', '');
     } else if (proxyAddr.startsWith('https://')) {
       proxyAddr = proxyAddr.replaceFirst('https://', '');
+    } else if (proxyAddr.startsWith('socks://')) {
+      proxyAddr = proxyAddr.replaceFirst('socks://', '');
+    } else if (proxyAddr.startsWith('socks5://')) {
+      proxyAddr = proxyAddr.replaceFirst('socks5://', '');
     }
 
     final dio = Dio();
