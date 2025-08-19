@@ -64,11 +64,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
         })
         .catchError((error) {
           if (mounted) {
-            showBottomNotification(
-              context,
-              '配置文件读取失败: $error',
-              NotificationType.error,
-            );
+            showBottomNotification('配置文件读取失败: $error', NotificationType.error);
           }
         });
   }
@@ -118,7 +114,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
 
       void onError(error) {
         if (mounted) {
-          showBottomNotification(context, '$error', NotificationType.error);
+          showBottomNotification('$error', NotificationType.error);
         }
       }
 
@@ -130,11 +126,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
           .listen(onData, onError: onError);
     } catch (error) {
       if (mounted) {
-        showBottomNotification(
-          context,
-          '启动进程失败: $error',
-          NotificationType.error,
-        );
+        showBottomNotification('启动进程失败: $error', NotificationType.error);
       }
     }
   }
@@ -181,7 +173,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
         processing = false;
         terminalVisible = false;
       });
-      showBottomNotification(context, '已停止转发服务。', NotificationType.warning);
+      showBottomNotification('已停止转发服务。', NotificationType.warning);
     }
   }
 
@@ -189,11 +181,11 @@ class RatholeHomePageState extends State<RatholeHomePage>
     if (!mounted) return;
 
     if (remoteAddrController.text.isEmpty) {
-      showBottomNotification(context, '请输入中继服务器地址。', NotificationType.error);
+      showBottomNotification('请输入中继服务器地址。', NotificationType.error);
       return;
     }
     if (services.isEmpty) {
-      showBottomNotification(context, '请添加服务。', NotificationType.error);
+      showBottomNotification('请添加服务。', NotificationType.error);
       return;
     }
 
@@ -207,11 +199,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
 
     if (!success) {
       if (mounted) {
-        showBottomNotification(
-          context,
-          '请检查所有服务的必填项是否完整。',
-          NotificationType.error,
-        );
+        showBottomNotification('请检查所有服务的必填项是否完整。', NotificationType.error);
       }
       return;
     }
@@ -222,7 +210,7 @@ class RatholeHomePageState extends State<RatholeHomePage>
         terminalVisible = true;
       });
       runCommand('rathole.exe --client ${widget.configFileName}');
-      showBottomNotification(context, '已启动，请查看日志。', NotificationType.success);
+      showBottomNotification('已启动，请查看日志。', NotificationType.success);
     }
   }
 

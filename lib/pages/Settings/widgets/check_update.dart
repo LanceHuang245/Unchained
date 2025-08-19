@@ -28,15 +28,11 @@ class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
           subtitle: latestReleaseBody ?? '获取更新信息失败',
         );
       } else {
-        showBottomNotification(context, "已是最新版本", NotificationType.success);
+        showBottomNotification("已是最新版本", NotificationType.success);
       }
     } catch (e) {
       debugPrint("检查更新失败：$e");
-      showBottomNotification(
-        context,
-        "检查更新时发生错误，请检查网络或权限。",
-        NotificationType.error,
-      );
+      showBottomNotification("检查更新时发生错误，请检查网络或权限。", NotificationType.error);
     } finally {
       if (mounted) {
         setState(() => _checking = false);

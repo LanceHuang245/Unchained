@@ -7,11 +7,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 enum NotificationType { success, warning, error, info }
 
-void showBottomNotification(
-  BuildContext context,
-  String content,
-  NotificationType type,
-) {
+void showBottomNotification(String content, NotificationType type) {
+  // 1. 从 GlobalKey 获取当前有效的 BuildContext 和 ScaffoldMessengerState
+  final scaffoldMessenger = scaffoldMessengerKey.currentState;
+  final context = scaffoldMessengerKey.currentContext;
+
+  // 2. 检查它们是否存在，以防万一
+  if (scaffoldMessenger == null || context == null) {
+    debugPrint("ScaffoldMessenger not available.");
+    return;
+  }
   final theme = Theme.of(context);
   Color backgroundColor;
   IconData iconData;
@@ -35,7 +40,7 @@ void showBottomNotification(
       break;
   }
 
-  scaffoldMessengerKey.currentState?.showSnackBar(
+  scaffoldMessenger.showSnackBar(
     SnackBar(
       content: Row(
         children: [
@@ -108,7 +113,7 @@ void showUpdateDialog(
           child: const Text('立即更新'),
           onPressed: () {
             Navigator.pop(context);
-            tryAutoUpdate(context);
+            tryAutoUpdate();
           },
         ),
       ],

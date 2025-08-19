@@ -61,7 +61,7 @@ class AboutWidget extends StatelessWidget {
                   ),
                   buildLinkButton(
                     AppConstant.appName,
-                    'https://github.com/ClaretWheel1481/Unchained',
+                    'https://github.com/LanceHuang245/Unchained',
                   ),
                 ],
               ),

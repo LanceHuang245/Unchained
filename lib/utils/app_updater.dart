@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
 import 'package:unchained/classes/rathole_config_manager.dart';
+import 'package:unchained/main.dart';
 import 'package:unchained/widgets/notification.dart';
 
 String? latestVersionTag;
@@ -42,7 +43,7 @@ Future<bool> checkUpdate() async {
     }
 
     const url =
-        'https://api.github.com/repos/ClaretWheel1481/Unchained/releases/latest';
+        'https://api.github.com/repos/LanceHuang245/Unchained/releases/latest';
     final response = await dio.get(url);
 
     if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
@@ -106,6 +107,7 @@ Future<bool> checkUpdate() async {
       return false;
     }
   } catch (e) {
+    showBottomNotification("更新错误，请检查您的网络设置。", NotificationType.error);
     rethrow;
   }
 }
@@ -220,44 +222,40 @@ void launchUpdaterAndExit(String updateDirPath) async {
   exit(0);
 }
 
-Future<void> tryAutoUpdate(BuildContext context) async {
-  if (!context.mounted) return;
+Future<void> tryAutoUpdate() async {
+  try {
+    final hasUpdate = await checkUpdate();
 
-  final hasUpdate = await checkUpdate();
-  if (hasUpdate && latestVersionTag != null) {
-    showBottomNotification(context, "正在下载并准备更新，请稍后……", NotificationType.info);
-
-    if (!context.mounted) return;
-    showUpdatingDialog(context);
-
-    final String? updateDirPath = await downloadAndUnzipToTempDir();
-
-    if (!context.mounted) return;
-    // 关闭更新进度对话框
-    Navigator.pop(context);
-
-    if (updateDirPath == null) {
-      if (!context.mounted) return;
-      showBottomNotification(
-        context,
-        "下载或解压时发生错误，请检查网络或权限。",
-        NotificationType.error,
-      );
+    final BuildContext? context = navigatorKey.currentContext;
+    if (context == null || !context.mounted) {
       return;
     }
 
-    if (!context.mounted) return;
-    showBottomNotification(
-      context,
-      "下载完成，程序即将关闭并更新。",
-      NotificationType.warning,
-    );
+    if (hasUpdate && latestVersionTag != null) {
+      showBottomNotification("正在下载并准备更新，请稍后……", NotificationType.info);
 
-    Future.delayed(const Duration(seconds: 3), () async {
-      launchUpdaterAndExit(updateDirPath);
-    });
-  } else {
-    if (!context.mounted) return;
-    showBottomNotification(context, "当前已是最新版本。", NotificationType.success);
+      showUpdatingDialog(context);
+
+      final String? updateDirPath = await downloadAndUnzipToTempDir();
+
+      if (navigatorKey.currentState?.canPop() ?? false) {
+        navigatorKey.currentState?.pop();
+      }
+
+      if (updateDirPath == null) {
+        showBottomNotification("下载或解压时发生错误，请检查网络或权限。", NotificationType.error);
+        return;
+      }
+
+      showBottomNotification("下载完成，程序即将关闭并更新。", NotificationType.warning);
+
+      Future.delayed(const Duration(seconds: 3), () async {
+        launchUpdaterAndExit(updateDirPath);
+      });
+    } else {
+      showBottomNotification("当前已是最新版本。", NotificationType.success);
+    }
+  } catch (e) {
+    showBottomNotification("更新错误，请检查您的网络设置。", NotificationType.error);
   }
 }
