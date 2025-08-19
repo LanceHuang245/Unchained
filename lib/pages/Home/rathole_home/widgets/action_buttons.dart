@@ -1,4 +1,6 @@
-import 'package:fluent_ui/fluent_ui.dart';
+// pages/home/rathole_home/widgets/action_buttons.dart
+
+import 'package:flutter/material.dart';
 
 class ActionButtons extends StatelessWidget {
   final bool processing;
@@ -14,38 +16,29 @@ class ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      spacing: 16,
       children: [
-        FilledButton(
-          onPressed: processing ? null : onAddService,
-          child: const SizedBox(
-            width: 100,
-            height: 40,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(FluentIcons.add),
-                SizedBox(width: 10),
-                Text("新增服务")
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 20),
-        FilledButton(
+        processing
+            ? SizedBox(width: 0)
+            : FloatingActionButton.extended(
+                heroTag: 'add_service_fab',
+                onPressed: onAddService,
+                label: const Text("新增服务"),
+                icon: const Icon(Icons.add),
+              ),
+        FloatingActionButton.extended(
+          heroTag: 'toggle_process_fab',
           onPressed: onToggleProcess,
-          child: SizedBox(
-            width: 100,
-            height: 40,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(processing ? FluentIcons.stop : FluentIcons.play),
-                const SizedBox(width: 10),
-                Text(processing ? "停止" : "运行")
-              ],
-            ),
-          ),
+          label: Text(processing ? "停止" : "运行"),
+          icon: Icon(processing ? Icons.stop : Icons.play_arrow),
+          // 运行时显示不同颜色
+          backgroundColor: processing
+              ? Theme.of(context).colorScheme.tertiaryContainer
+              : Theme.of(context).colorScheme.primaryContainer,
+          foregroundColor: processing
+              ? Theme.of(context).colorScheme.onTertiaryContainer
+              : Theme.of(context).colorScheme.onPrimaryContainer,
         ),
       ],
     );

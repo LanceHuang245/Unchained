@@ -1,6 +1,8 @@
+// pages/home/view.dart
+
 import 'dart:convert';
 import 'dart:io';
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
 import 'package:unchained/pages/home/rathole_home/view.dart';
@@ -13,17 +15,31 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   static const String _prefsKey = 'tabsInfo';
 
-  int currentIndex = 0;
-
+  TabController? _tabController;
   List<Map<String, dynamic>> tabsInfo = [];
 
   @override
   void initState() {
     super.initState();
     _loadTabsFromPrefs();
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
+  }
+
+  void _updateTabController() {
+    _tabController?.dispose();
+    _tabController = TabController(
+      length: tabsInfo.length,
+      vsync: this,
+      initialIndex: (tabsInfo.length - 1).clamp(0, tabsInfo.length - 1),
+    );
   }
 
   Future<void> _loadTabsFromPrefs() async {
@@ -33,30 +49,28 @@ class HomePageState extends State<HomePage> {
     if (raw != null) {
       try {
         final List<dynamic> decoded = json.decode(raw);
-        final List<Map<String, dynamic>> loaded = decoded.map((e) {
+        tabsInfo = decoded.map((e) {
           return <String, dynamic>{
             'title': e['title'] as String,
             'config': e['config'] as String,
             'key': GlobalKey<RatholeHomePageState>(),
-            'processing': false,
           };
         }).toList();
 
-        for (var item in loaded) {
-          final configName = item['config'] as String;
-          await _ensureConfigFileExists(configName);
+        for (var item in tabsInfo) {
+          await _ensureConfigFileExists(item['config'] as String);
         }
-
-        setState(() {
-          tabsInfo = loaded;
-        });
       } catch (_) {
         await prefs.remove(_prefsKey);
-        _createDefaultSingleTab();
+        await _createDefaultSingleTab();
       }
     } else {
-      _createDefaultSingleTab();
+      await _createDefaultSingleTab();
     }
+
+    setState(() {
+      _updateTabController();
+    });
   }
 
   Future<void> _createDefaultSingleTab() async {
@@ -64,15 +78,9 @@ class HomePageState extends State<HomePage> {
       'title': 'Rathole 客户端 1',
       'config': 'client_1.toml',
       'key': GlobalKey<RatholeHomePageState>(),
-      'processing': false,
     };
-
-    final configName = defaultTab['config'] as String;
-    await _ensureConfigFileExists(configName);
-
-    setState(() {
-      tabsInfo = [defaultTab];
-    });
+    await _ensureConfigFileExists(defaultTab['config'] as String);
+    tabsInfo = [defaultTab];
     await _saveTabsToPrefs();
   }
 
@@ -98,7 +106,7 @@ class HomePageState extends State<HomePage> {
         if (!await dir.exists()) {
           await dir.create(recursive: true);
         }
-        RatholeConfigManager.createEmptyTemplate(file);
+        await RatholeConfigManager.createEmptyTemplate(file);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -117,76 +125,89 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  Tab _buildTab(int index) {
-    final info = tabsInfo[index];
-    final String title = info['title'] as String;
-    final String configName = info['config'] as String;
-    final GlobalKey<RatholeHomePageState> pageKey =
-        info['key'] as GlobalKey<RatholeHomePageState>;
+  void _addNewTab() async {
+    final newIndex = tabsInfo.length + 1;
+    final newTitle = 'Rathole 客户端 $newIndex';
+    final newConfig = 'client_$newIndex.toml';
 
-    final bool isProcessing = pageKey.currentState?.processing ?? false;
-    final bool canClose = index != 0 && !isProcessing;
+    await _ensureConfigFileExists(newConfig);
 
-    return Tab(
-      text: Text(title),
-      icon: const Icon(FluentIcons.cloud),
-      body: RatholeHomePage(
-        key: pageKey,
-        configFileName: configName,
-        onProcessingChanged: (bool p) {
-          if (!mounted) return;
-          setState(() {
-            tabsInfo[index]['processing'] = p;
-          });
-        },
-      ),
-      onClosed: canClose
-          ? () async {
-              await _deleteConfigFile(configName);
+    setState(() {
+      tabsInfo.add(<String, dynamic>{
+        'title': newTitle,
+        'config': newConfig,
+        'key': GlobalKey<RatholeHomePageState>(),
+      });
+      _updateTabController();
+    });
 
-              setState(() {
-                tabsInfo.removeAt(index);
-                if (currentIndex >= tabsInfo.length) {
-                  currentIndex = tabsInfo.length - 1;
-                }
-              });
+    await _saveTabsToPrefs();
+  }
 
-              await _saveTabsToPrefs();
-            }
-          : null,
-    );
+  void _closeTab(int index) async {
+    final configName = tabsInfo[index]['config'] as String;
+    await _deleteConfigFile(configName);
+
+    setState(() {
+      tabsInfo.removeAt(index);
+      _updateTabController();
+    });
+
+    await _saveTabsToPrefs();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TabView(
-      currentIndex: currentIndex,
-      onChanged: (index) {
-        setState(() {
-          currentIndex = index;
-        });
-      },
-      closeButtonVisibility: CloseButtonVisibilityMode.onHover,
-      onNewPressed: () async {
-        final newIndex = tabsInfo.length + 1;
-        final newTitle = 'Rathole 客户端 $newIndex';
-        final newConfig = 'client_$newIndex.toml';
+    if (_tabController == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        await _ensureConfigFileExists(newConfig);
-
-        setState(() {
-          tabsInfo.add(<String, dynamic>{
-            'title': newTitle,
-            'config': newConfig,
-            'key': GlobalKey<RatholeHomePageState>(),
-            'processing': false,
-          });
-          currentIndex = tabsInfo.length - 1;
-        });
-
-        await _saveTabsToPrefs();
-      },
-      tabs: List.generate(tabsInfo.length, (i) => _buildTab(i)),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Rathole 客户端'),
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabs: List.generate(tabsInfo.length, (index) {
+            final info = tabsInfo[index];
+            final bool canClose = index != 0;
+            return Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.cloud_outlined),
+                  const SizedBox(width: 8),
+                  Text(info['title'] as String),
+                  if (canClose) const SizedBox(width: 8),
+                  if (canClose)
+                    InkWell(
+                      onTap: () => _closeTab(index),
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Icon(Icons.close, size: 16),
+                    ),
+                ],
+              ),
+            );
+          }),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: "新增客户端配置",
+            onPressed: _addNewTab,
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: tabsInfo.map((info) {
+          return RatholeHomePage(
+            key: info['key'] as GlobalKey<RatholeHomePageState>,
+            configFileName: info['config'] as String,
+          );
+        }).toList(),
+      ),
     );
   }
 }

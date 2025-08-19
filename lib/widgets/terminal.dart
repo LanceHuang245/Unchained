@@ -1,28 +1,31 @@
-import 'package:fluent_ui/fluent_ui.dart';
+// widgets/terminal.dart
+
+import 'package:flutter/material.dart';
 import 'package:unchained/classes/log_formatter.dart';
 
 class Terminal extends StatelessWidget {
   final List<String> lines;
-  final bool visible;
+  final ScrollController scrollController;
 
-  const Terminal({super.key, required this.lines, required this.visible});
+  const Terminal({
+    super.key,
+    required this.lines,
+    required this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: visible,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: FluentTheme.of(context).cardColor,
-          border: Border.all(
-            color: FluentTheme.of(context).resources.controlStrokeColorDefault,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
         child: ListView.builder(
-          shrinkWrap: true,
+          controller: scrollController,
           itemCount: lines.length,
           itemBuilder: (context, idx) {
             final parts = lines[idx].split('|');
@@ -30,44 +33,30 @@ class Terminal extends StatelessWidget {
             final level = parts[1];
             final content = parts[2];
 
-            Color levelColor;
-            levelColor = LogFormatter.formatLevel(level);
+            final Color levelColor = LogFormatter.formatLevel(level);
 
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
+              padding: const EdgeInsets.symmetric(vertical: 2.0),
               child: RichText(
                 text: TextSpan(
-                  style: TextStyle(
-                    fontFamily: 'Consolas',
-                    fontSize: 14,
-                    color: FluentTheme.of(
-                      context,
-                    ).resources.textOnAccentFillColorPrimary,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontFamily: 'monospace',
                   ),
                   children: [
                     if (time.isNotEmpty)
                       TextSpan(
                         text: '$time  ',
-                        style: TextStyle(
-                          color: FluentTheme.of(
-                            context,
-                          ).resources.textFillColorTertiary,
-                        ),
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     if (level.isNotEmpty)
                       TextSpan(
                         text: '$level  ',
                         style: TextStyle(
                           color: levelColor,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    TextSpan(
-                      text: content,
-                      style: TextStyle(
-                        color: FluentTheme.of(context).inactiveColor,
-                      ),
-                    ),
+                    TextSpan(text: content),
                   ],
                 ),
               ),

@@ -1,20 +1,36 @@
-import 'package:fluent_ui/fluent_ui.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
 import 'package:unchained/utils/app_updater.dart';
 import 'package:unchained/utils/theme_color.dart';
 import 'package:unchained/widgets/navigation.dart';
 import 'package:unchained/widgets/notification.dart';
+import 'package:window_manager/window_manager.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 final themeModeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
-
 late final ValueNotifier<Color> accentColorNotifier;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await windowManager.ensureInitialized();
+  WindowOptions windowOptions = const WindowOptions(
+    size: Size(1080, 620),
+    minimumSize: Size(800, 600),
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.hidden,
+  );
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
 
   final prefs = await SharedPreferences.getInstance();
   final saved = prefs.getString('theme_mode') ?? 'system';
@@ -28,19 +44,10 @@ void main() async {
   final autoUpdateChecked = prefs.getBool('auto_update_checked') ?? true;
 
   runApp(MyApp(shouldCheckUpdate: autoUpdateChecked));
-
-  // 启动时设置窗口大小
-  doWhenWindowReady(() {
-    appWindow.minSize = const Size(1080, 620);
-    appWindow.size = const Size(1080, 620);
-    appWindow.alignment = Alignment.center;
-    appWindow.show();
-  });
 }
 
 class MyApp extends StatefulWidget {
   final bool shouldCheckUpdate;
-
   const MyApp({super.key, required this.shouldCheckUpdate});
 
   @override
@@ -82,18 +89,22 @@ class _MyAppState extends State<MyApp> {
         return ValueListenableBuilder<ThemeMode>(
           valueListenable: themeModeNotifier,
           builder: (context, mode, _) {
-            return FluentApp(
+            return MaterialApp(
               title: AppConstant.appName,
               navigatorKey: navigatorKey,
+              scaffoldMessengerKey: scaffoldMessengerKey,
               themeMode: mode,
-              theme: FluentThemeData(
+              theme: ThemeData(
+                useMaterial3: true,
                 brightness: Brightness.light,
-                accentColor: accentColor.toAccentColor(),
+                colorSchemeSeed: accentColor,
               ),
-              darkTheme: FluentThemeData(
+              darkTheme: ThemeData(
+                useMaterial3: true,
                 brightness: Brightness.dark,
-                accentColor: accentColor.toAccentColor(),
+                colorSchemeSeed: accentColor,
               ),
+              debugShowCheckedModeBanner: false,
               home: const NavigationWidget(),
             );
           },

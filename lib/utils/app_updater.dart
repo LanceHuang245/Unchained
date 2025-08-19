@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'package:archive/archive.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
@@ -111,7 +110,6 @@ Future<bool> checkUpdate() async {
   }
 }
 
-// 下载并解压 ZIP 覆盖到应用根目录
 Future<String?> downloadAndUnzipToTempDir() async {
   try {
     if (latestZipDownloadUrl == null || latestZipDownloadUrl!.isEmpty) {
@@ -196,9 +194,8 @@ Future<String?> downloadAndUnzipToTempDir() async {
   }
 }
 
-void launchUpdaterAndExit(String updateDirPath) {
+void launchUpdaterAndExit(String updateDirPath) async {
   final String installDir = File(Platform.resolvedExecutable).parent.path;
-
   final String updaterExePath = "$installDir\\Updater.exe";
 
   if (!File(updaterExePath).existsSync()) {
@@ -219,48 +216,48 @@ void launchUpdaterAndExit(String updateDirPath) {
     return;
   }
 
-  RatholeConfigManager.stopRathole();
-  appWindow.close();
+  await RatholeConfigManager.stopRathole();
+  exit(0);
 }
 
 Future<void> tryAutoUpdate(BuildContext context) async {
+  if (!context.mounted) return;
+
   final hasUpdate = await checkUpdate();
   if (hasUpdate && latestVersionTag != null) {
-    showBottomNotification(
-      context,
-      "通知",
-      "正在下载并准备更新，请稍后……",
-      InfoBarSeverity.info,
-    );
+    showBottomNotification(context, "正在下载并准备更新，请稍后……", NotificationType.info);
+
+    if (!context.mounted) return;
     showUpdatingDialog(context);
 
     final String? updateDirPath = await downloadAndUnzipToTempDir();
+
+    if (!context.mounted) return;
+    // 关闭更新进度对话框
+    Navigator.pop(context);
+
     if (updateDirPath == null) {
+      if (!context.mounted) return;
       showBottomNotification(
         context,
-        "更新失败",
         "下载或解压时发生错误，请检查网络或权限。",
-        InfoBarSeverity.error,
+        NotificationType.error,
       );
       return;
     }
-    Navigator.pop(context);
 
+    if (!context.mounted) return;
     showBottomNotification(
       context,
-      "下载完成，即将更新",
-      "程序将自动关闭并更新到新版本，请稍候……",
-      InfoBarSeverity.warning,
+      "下载完成，程序即将关闭并更新。",
+      NotificationType.warning,
     );
+
     Future.delayed(const Duration(seconds: 3), () async {
       launchUpdaterAndExit(updateDirPath);
     });
   } else {
-    showBottomNotification(
-      context,
-      "无需更新",
-      "当前已是最新版本。",
-      InfoBarSeverity.success,
-    );
+    if (!context.mounted) return;
+    showBottomNotification(context, "当前已是最新版本。", NotificationType.success);
   }
 }

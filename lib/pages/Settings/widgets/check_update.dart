@@ -1,4 +1,4 @@
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:unchained/utils/app_updater.dart';
 import 'package:unchained/widgets/notification.dart';
 
@@ -14,7 +14,9 @@ class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
 
   Future<void> _onCheckPressed() async {
     if (!mounted) return;
-    setState(() => _checking = true);
+    setState(() {
+      _checking = true;
+    });
     try {
       final updateAvailable = await checkUpdate();
       if (!mounted) return;
@@ -26,69 +28,43 @@ class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
           subtitle: latestReleaseBody ?? '获取更新信息失败',
         );
       } else {
-        showBottomNotification(
-          context,
-          "已是最新版本",
-          "当前已是最新版本，无需更新。",
-          InfoBarSeverity.success,
-        );
+        showBottomNotification(context, "已是最新版本", NotificationType.success);
       }
-
-      if (!mounted) return;
-      setState(() => _checking = false);
     } catch (e) {
       debugPrint("检查更新失败：$e");
       showBottomNotification(
         context,
-        "检查更新失败",
         "检查更新时发生错误，请检查网络或权限。",
-        InfoBarSeverity.error,
+        NotificationType.error,
       );
-      setState(() => _checking = false);
+    } finally {
+      if (mounted) {
+        setState(() => _checking = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 10),
-      child: Card(
-        borderRadius: const BorderRadiusGeometry.all(Radius.circular(5.0)),
-        child: SizedBox(
-          height: 41,
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 6),
-            child: Row(
-              children: [
-                const Icon(FluentIcons.update_restore, size: 15),
-                const SizedBox(width: 17),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("检查更新"),
-                    Text(
-                      "手动检查更新，若检测到新版本，将弹出对话框进行提醒。（部分地区需配置网络代理）",
-                      style: TextStyle(
-                        color: FluentTheme.of(
-                          context,
-                        ).resources.textFillColorSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.system_update_alt),
+        title: const Text("检查更新"),
+        subtitle: const Text("手动检查是否有可用的新版本。"),
+        trailing: SizedBox(
+          width: 90,
+          child: _checking
+              ? const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ),
+                )
+              : FilledButton(
+                  onPressed: _onCheckPressed,
+                  child: const Text("检查"),
                 ),
-                const Spacer(),
-                _checking
-                    ? const ProgressRing()
-                    : FilledButton(
-                        onPressed: _onCheckPressed,
-                        child: const Text("检查更新"),
-                      ),
-              ],
-            ),
-          ),
         ),
       ),
     );

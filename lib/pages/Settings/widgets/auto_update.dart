@@ -1,4 +1,4 @@
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
 
 class AutoUpdateWidget extends StatelessWidget {
   final bool checked;
@@ -12,43 +12,12 @@ class AutoUpdateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 10),
-      child: Card(
-        borderRadius: const BorderRadiusGeometry.all(Radius.circular(5.0)),
-        child: SizedBox(
-          height: 41,
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Icon(FluentIcons.disable_updates, size: 15),
-                const SizedBox(width: 17),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("自动检查更新"),
-                    Text(
-                      "在每次启动时自动检查可用更新，若检测到新版本，将弹出对话框进行提醒。（部分地区需配置网络代理）",
-                      style: TextStyle(
-                        color: FluentTheme.of(
-                          context,
-                        ).resources.textFillColorSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                ToggleSwitch(checked: checked, onChanged: onChanged),
-              ],
-            ),
-          ),
-        ),
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.update),
+        title: const Text("自动检查更新"),
+        subtitle: const Text("在每次启动时自动检查可用更新。（部分地区需配置网络代理）"),
+        trailing: Switch(value: checked, onChanged: onChanged),
       ),
     );
   }

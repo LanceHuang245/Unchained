@@ -1,56 +1,106 @@
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:unchained/app_constant.dart';
+import 'package:unchained/main.dart';
 import 'package:unchained/utils/app_updater.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+enum NotificationType { success, warning, error, info }
+
 void showBottomNotification(
   BuildContext context,
-  String title,
-  content,
-  InfoBarSeverity serverity,
-) async {
-  await displayInfoBar(
-    context,
-    builder: (context, close) => InfoBar(
-      title: Text(title),
-      content: Text(content),
-      action: IconButton(icon: const Icon(FluentIcons.clear), onPressed: close),
-      severity: serverity,
-    ),
-  );
-}
+  String content,
+  NotificationType type,
+) {
+  final theme = Theme.of(context);
+  Color backgroundColor;
+  IconData iconData;
 
-// 更新提示对话框
-void showUpdateDialog(
-  BuildContext context, {
-  required String title,
-  subtitle,
-}) async {
-  await showDialog(
-    context: context,
-    builder: (context) => ContentDialog(
-      title: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+  switch (type) {
+    case NotificationType.success:
+      backgroundColor = theme.colorScheme.primaryContainer;
+      iconData = Icons.check_circle_outline;
+      break;
+    case NotificationType.warning:
+      backgroundColor = theme.colorScheme.secondaryContainer;
+      iconData = Icons.warning_amber_outlined;
+      break;
+    case NotificationType.error:
+      backgroundColor = theme.colorScheme.errorContainer;
+      iconData = Icons.error_outline;
+      break;
+    case NotificationType.info:
+      backgroundColor = theme.colorScheme.secondaryContainer;
+      iconData = Icons.info_outline;
+      break;
+  }
+
+  scaffoldMessengerKey.currentState?.showSnackBar(
+    SnackBar(
+      content: Row(
         children: [
-          Text("检查到新版本$title"),
-          Text(
-            "当前版本：${AppConstant.appVersion}",
-            style: TextStyle(
-              color: FluentTheme.of(context).resources.textFillColorSecondary,
-              fontSize: 14,
+          Icon(iconData, color: theme.colorScheme.onSurface),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              content,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ),
         ],
       ),
+      backgroundColor: backgroundColor,
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(16),
+      showCloseIcon: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+  );
+}
+
+void showUpdateDialog(
+  BuildContext context, {
+  required String title,
+  String? subtitle,
+}) async {
+  await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text("发现新版本 $title"),
       content: SizedBox(
-        height: 300,
-        width: 400,
-        child: Markdown(data: subtitle),
+        width: MediaQuery.of(context).size.height * 0.7,
+        height: MediaQuery.of(context).size.width * 0.6,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "当前版本：${AppConstant.appVersion}",
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Card(
+                elevation: 0,
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(12.0),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: Markdown(data: subtitle ?? "没有更新日志。"),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       actions: [
-        Button(
+        TextButton(
           child: const Text('稍后再说'),
           onPressed: () => Navigator.pop(context),
         ),
@@ -70,14 +120,23 @@ void showUpdateDialog(
 void showUpdatingDialog(BuildContext context) async {
   await showDialog(
     context: context,
-    builder: (context) => const ContentDialog(
-      title: Text("更新"),
-      content: SizedBox(child: ProgressBar()),
-      actions: null,
+    barrierDismissible: false,
+    builder: (context) => const AlertDialog(
+      title: Text("正在更新..."),
+      content: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.0),
+        child: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 24),
+            Text("请稍候"),
+          ],
+        ),
+      ),
     ),
   );
 }
 
-Future loadURL(String url) async {
+Future<void> loadURL(String url) async {
   await launchUrl(Uri.parse(url));
 }

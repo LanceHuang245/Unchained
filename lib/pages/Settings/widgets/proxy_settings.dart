@@ -1,6 +1,6 @@
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
 
-class ProxySettingsWidget extends StatelessWidget {
+class ProxySettingsWidget extends StatefulWidget {
   final TextEditingController controller;
   final void Function(String) onChanged;
 
@@ -11,50 +11,50 @@ class ProxySettingsWidget extends StatelessWidget {
   });
 
   @override
+  State<ProxySettingsWidget> createState() => _ProxySettingsWidgetState();
+}
+
+class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
+  bool _isExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 10),
-      child: Expander(
-        leading: const Icon(FluentIcons.internet_sharing),
-        header: Padding(
-          padding: const EdgeInsets.only(
-            left: 6,
-            right: 20,
-            top: 15,
-            bottom: 15,
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.lan_outlined),
+            title: const Text("代理设置"),
+            subtitle: const Text("用于检查、下载更新等功能的网络代理，不影响中继转发。"),
+            trailing: Icon(_isExpanded ? Icons.expand_less : Icons.expand_more),
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded;
+              });
+            },
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("代理设置"),
-              Text(
-                "用于Unchained的网络代理，通常用于检查、下载更新功能，不影响中继转发功能。",
-                style: TextStyle(
-                  color: FluentTheme.of(
-                    context,
-                  ).resources.textFillColorSecondary,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ),
-        content: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: InfoLabel(
-                label: '代理服务器地址',
-                child: TextBox(
-                  placeholder: "127.0.0.1:7890",
-                  controller: controller,
-                  onChanged: onChanged,
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 150),
+            crossFadeState: _isExpanded
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            firstChild: Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
+              child: TextField(
+                controller: widget.controller,
+                onChanged: widget.onChanged,
+                decoration: const InputDecoration(
+                  labelText: '代理服务器地址',
+                  hintText: '例如：127.0.0.1:7890',
+                  border: OutlineInputBorder(),
                 ),
               ),
             ),
-          ],
-        ),
+
+            secondChild: Container(),
+          ),
+        ],
       ),
     );
   }
