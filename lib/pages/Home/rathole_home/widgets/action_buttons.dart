@@ -32,7 +32,6 @@ class ActionButtons extends StatelessWidget {
           onPressed: onToggleProcess,
           label: Text(processing ? "停止" : "运行"),
           icon: Icon(processing ? Icons.stop : Icons.play_arrow),
-          // 运行时显示不同颜色
           backgroundColor: processing
               ? Theme.of(context).colorScheme.tertiaryContainer
               : Theme.of(context).colorScheme.primaryContainer,

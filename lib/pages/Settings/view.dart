@@ -80,7 +80,6 @@ class SettingsPageState extends State<SettingsPage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // 使用 ListView 来实现可滚动内容
     return ListView(
       padding: const EdgeInsets.all(24.0),
       children: [
@@ -97,21 +96,15 @@ class SettingsPageState extends State<SettingsPage> {
             await saveAccentColor(color);
           },
         ),
-        const SizedBox(height: 16),
         AutoUpdateWidget(
           checked: autoUpdateChecked,
           onChanged: _onAutoUpdateChanged,
         ),
-        const SizedBox(height: 16),
         CheckUpdateWidget(),
-        const SizedBox(height: 16),
         ProxySettingsWidget(
           controller: proxyAddrController,
           onChanged: _onProxyAddressChanged,
         ),
-        const SizedBox(height: 24),
-        Text('关于', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16),
         const AboutWidget(),
       ],
     );

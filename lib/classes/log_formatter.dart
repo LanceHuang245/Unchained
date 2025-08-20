@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LogFormatter {
   static String formatLine(String raw) {
     final timeRegex = RegExp(r'^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)');
-    final levelRegex = RegExp(r'^(INFO|WARNING|ERROR)\b');
+    final levelRegex = RegExp(r'^(INFO|WARN|ERROR)\b');
     String timePart = '', levelPart = '';
     var rest = raw;
     final tMatch = timeRegex.firstMatch(raw);
@@ -23,7 +23,7 @@ class LogFormatter {
 
   static Color formatLevel(String level) {
     switch (level) {
-      case 'WARNING':
+      case 'WARN':
         return Colors.red;
       case 'ERROR':
         return Colors.red;

@@ -1,3 +1,4 @@
+import 'package:chinese_font_library/chinese_font_library.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unchained/app_constant.dart';
@@ -98,12 +99,12 @@ class _MyAppState extends State<MyApp> {
                 useMaterial3: true,
                 brightness: Brightness.light,
                 colorSchemeSeed: accentColor,
-              ),
+              ).useSystemChineseFont(Brightness.light),
               darkTheme: ThemeData(
                 useMaterial3: true,
                 brightness: Brightness.dark,
                 colorSchemeSeed: accentColor,
-              ),
+              ).useSystemChineseFont(Brightness.dark),
               debugShowCheckedModeBanner: false,
               home: const NavigationWidget(),
             );

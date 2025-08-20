@@ -26,7 +26,7 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
           ListTile(
             leading: const Icon(Icons.lan_outlined),
             title: const Text("代理设置"),
-            subtitle: const Text("用于检查、下载更新等功能的网络代理，不影响中继转发。"),
+            subtitle: const Text("用于检查、下载更新等功能的网络代理，不影响中继转发"),
             trailing: Icon(_isExpanded ? Icons.expand_less : Icons.expand_more),
             onTap: () {
               setState(() {
@@ -51,7 +51,6 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
                 ),
               ),
             ),
-
             secondChild: Container(),
           ),
         ],

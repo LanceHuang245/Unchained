@@ -18,23 +18,13 @@ Future<bool> checkUpdate() async {
   try {
     final prefs = await SharedPreferences.getInstance();
     final rawProxy = prefs.getString('proxy_addr') ?? '';
-    String proxyAddr = rawProxy;
-    if (proxyAddr.startsWith('http://')) {
-      proxyAddr = proxyAddr.replaceFirst('http://', '');
-    } else if (proxyAddr.startsWith('https://')) {
-      proxyAddr = proxyAddr.replaceFirst('https://', '');
-    } else if (proxyAddr.startsWith('socks://')) {
-      proxyAddr = proxyAddr.replaceFirst('socks://', '');
-    } else if (proxyAddr.startsWith('socks5://')) {
-      proxyAddr = proxyAddr.replaceFirst('socks5://', '');
-    }
 
     final dio = Dio();
-    if (proxyAddr.isNotEmpty) {
+    if (rawProxy.isNotEmpty) {
       (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
         final client = HttpClient();
         client.findProxy = (Uri uri) {
-          return "PROXY $proxyAddr";
+          return "PROXY $rawProxy";
         };
         client.badCertificateCallback =
             (X509Certificate cert, String host, int port) => true;
@@ -58,9 +48,8 @@ Future<bool> checkUpdate() async {
         return false;
       }
 
-      final String parsedLatestTag = rawTagName.startsWith('v')
-          ? rawTagName.substring(1)
-          : rawTagName;
+      final String parsedLatestTag =
+          rawTagName.startsWith('v') ? rawTagName.substring(1) : rawTagName;
 
       latestVersionTag = parsedLatestTag;
       latestReleaseBody = rawBody;
@@ -85,9 +74,8 @@ Future<bool> checkUpdate() async {
       int compareVersionStrings(String v1, String v2) {
         final parts1 = v1.split('.').map((e) => int.tryParse(e) ?? 0).toList();
         final parts2 = v2.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-        final len = (parts1.length > parts2.length)
-            ? parts1.length
-            : parts2.length;
+        final len =
+            (parts1.length > parts2.length) ? parts1.length : parts2.length;
         for (int i = 0; i < len; i++) {
           final num1 = (i < parts1.length) ? parts1[i] : 0;
           final num2 = (i < parts2.length) ? parts2[i] : 0;
@@ -120,23 +108,12 @@ Future<String?> downloadAndUnzipToTempDir() async {
     }
     final prefs = await SharedPreferences.getInstance();
     final rawProxy = prefs.getString('proxy_addr') ?? '';
-    String proxyAddr = rawProxy;
-    if (proxyAddr.startsWith('http://')) {
-      proxyAddr = proxyAddr.replaceFirst('http://', '');
-    } else if (proxyAddr.startsWith('https://')) {
-      proxyAddr = proxyAddr.replaceFirst('https://', '');
-    } else if (proxyAddr.startsWith('socks://')) {
-      proxyAddr = proxyAddr.replaceFirst('socks://', '');
-    } else if (proxyAddr.startsWith('socks5://')) {
-      proxyAddr = proxyAddr.replaceFirst('socks5://', '');
-    }
-
     final dio = Dio();
-    if (proxyAddr.isNotEmpty) {
+    if (rawProxy.isNotEmpty) {
       (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
         final client = HttpClient();
         client.findProxy = (Uri uri) {
-          return "PROXY $proxyAddr";
+          return "PROXY $rawProxy";
         };
         client.badCertificateCallback =
             (X509Certificate cert, String host, int port) => true;

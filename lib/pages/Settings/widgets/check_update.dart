@@ -46,7 +46,7 @@ class CheckUpdateWidgetState extends State<CheckUpdateWidget> {
       child: ListTile(
         leading: const Icon(Icons.system_update_alt),
         title: const Text("检查更新"),
-        subtitle: const Text("手动检查是否有可用的新版本。"),
+        subtitle: const Text("手动检查是否有可用的新版本"),
         trailing: SizedBox(
           width: 90,
           child: _checking

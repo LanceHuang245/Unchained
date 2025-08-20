@@ -40,7 +40,7 @@ class Terminal extends StatelessWidget {
               child: RichText(
                 text: TextSpan(
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    fontFamily: 'monospace',
+                    fontFamily: 'Consolas',
                   ),
                   children: [
                     if (time.isNotEmpty)

@@ -47,26 +47,24 @@ class RatholeHomePageState extends State<RatholeHomePage>
   void _initializeConfig() {
     final fullPath =
         '${AppConstant.assetsPath}rathole/${widget.configFileName}';
-    RatholeConfigManager.readRatholeConfigFrom(fullPath)
-        .then((config) {
-          if (!mounted) return;
-          remoteAddrController.text = config['remoteAddr'];
-          if (config['services'].isNotEmpty) {
-            services = config['services'];
-            for (int i = 0; i < services.length; i++) {
-              _listKey.currentState?.insertItem(
-                i,
-                duration: const Duration(milliseconds: 100),
-              );
-            }
-          }
-          if (mounted) setState(() {});
-        })
-        .catchError((error) {
-          if (mounted) {
-            showBottomNotification('配置文件读取失败: $error', NotificationType.error);
-          }
-        });
+    RatholeConfigManager.readRatholeConfigFrom(fullPath).then((config) {
+      if (!mounted) return;
+      remoteAddrController.text = config['remoteAddr'];
+      if (config['services'].isNotEmpty) {
+        services = config['services'];
+        for (int i = 0; i < services.length; i++) {
+          _listKey.currentState?.insertItem(
+            i,
+            duration: const Duration(milliseconds: 100),
+          );
+        }
+      }
+      if (mounted) setState(() {});
+    }).catchError((error) {
+      if (mounted) {
+        showBottomNotification('配置文件读取失败: $error', NotificationType.error);
+      }
+    });
   }
 
   @override
@@ -87,10 +85,13 @@ class RatholeHomePageState extends State<RatholeHomePage>
     setState(() => formattedLines.clear());
 
     try {
-      _process = await Process.start('cmd', [
-        '/c',
-        command,
-      ], workingDirectory: "${AppConstant.assetsPath}rathole/");
+      _process = await Process.start(
+          'cmd',
+          [
+            '/c',
+            command,
+          ],
+          workingDirectory: "${AppConstant.assetsPath}rathole/");
 
       Null onData(String data) {
         if (!mounted) return;
@@ -236,7 +237,6 @@ class RatholeHomePageState extends State<RatholeHomePage>
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 16),
                   Expanded(
                     child: AnimatedList(
                       key: _listKey,
@@ -260,19 +260,18 @@ class RatholeHomePageState extends State<RatholeHomePage>
               ),
             ),
             // 右侧终端区域
-            if (terminalVisible) const SizedBox(width: 16),
-            if (terminalVisible)
-              Expanded(
-                flex: 4,
-                child: Terminal(
-                  lines: formattedLines,
-                  scrollController: _terminalScrollController,
-                ),
-              ),
+            terminalVisible
+                ? Expanded(
+                    flex: 4,
+                    child: Terminal(
+                      lines: formattedLines,
+                      scrollController: _terminalScrollController,
+                    ),
+                  )
+                : Expanded(flex: 4, child: Container()),
           ],
         ),
       ),
-      // 浮动操作按钮
       floatingActionButton: ActionButtons(
         processing: processing,
         onAddService: addService,

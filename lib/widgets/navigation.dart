@@ -53,22 +53,18 @@ class NavigationWidgetState extends State<NavigationWidget>
 
   @override
   Widget build(BuildContext context) {
-    // 【修改】将 Scaffold 的 body 包装在一个 Column 中
     return Scaffold(
       body: Column(
         children: [
-          // 【新增】自定义的标题栏
           SizedBox(
-            height: 48, // 标题栏高度
+            height: 36,
             child: Row(
               children: [
-                // 可拖动区域
                 Expanded(
                   child: DragToMoveArea(
                     child: Container(
-                      padding: const EdgeInsets.only(left: 16),
+                      padding: const EdgeInsets.only(left: 10),
                       alignment: Alignment.centerLeft,
-                      // 在这里可以放置标题或Logo，如果需要的话
                       child: Row(
                         children: [
                           Image.asset(
@@ -79,7 +75,6 @@ class NavigationWidgetState extends State<NavigationWidget>
                           const SizedBox(width: 8),
                           Text(
                             "Unchained",
-                            style: Theme.of(context).textTheme.titleSmall,
                           ),
                         ],
                       ),

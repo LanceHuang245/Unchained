@@ -1,5 +1,3 @@
-// pages/home/rathole_home/widgets/rathole_service_tile.dart
-
 import 'package:flutter/material.dart';
 import 'package:unchained/classes/service_config.dart';
 
@@ -96,7 +94,7 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
                       controller: widget.service.localAddrController,
                       onChanged: (_) => widget.onUpdate(),
                       decoration: const InputDecoration(
-                        labelText: '本地服务地址',
+                        labelText: '服务地址',
                         hintText: '例如: 127.0.0.1:8080',
                         border: OutlineInputBorder(),
                       ),
@@ -129,7 +127,7 @@ class _RatholeServiceTileState extends State<RatholeServiceTile> {
                 controller: widget.service.tokenController,
                 onChanged: (_) => widget.onUpdate(),
                 decoration: const InputDecoration(
-                  labelText: 'Token (可选)',
+                  labelText: 'Token',
                   border: OutlineInputBorder(),
                 ),
               ),

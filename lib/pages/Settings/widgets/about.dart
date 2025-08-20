@@ -44,7 +44,7 @@ class AboutWidget extends StatelessWidget {
                 children: [
                   buildLinkButton(
                     'Rathole 使用帮助',
-                    'https://github.com/yujqiao/rathole/blob/main/README-zh.md',
+                    'https://github.com/rathole-org/rathole/blob/main/README.md',
                   ),
                 ],
               ),
@@ -57,11 +57,11 @@ class AboutWidget extends StatelessWidget {
                 children: [
                   buildLinkButton(
                     'Rathole',
-                    'https://github.com/rapiz1/rathole',
+                    AppConstant.ratholeRepoUrl,
                   ),
                   buildLinkButton(
                     AppConstant.appName,
-                    'https://github.com/LanceHuang245/Unchained',
+                    AppConstant.appRepoUrl,
                   ),
                 ],
               ),

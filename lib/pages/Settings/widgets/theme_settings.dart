@@ -42,7 +42,6 @@ class _ThemeSettingsWidgetState extends State<ThemeSettingsWidget> {
                   },
                   pickerAreaHeightPercent: 0.8,
                   enableAlpha: false,
-                  displayThumbColor: true,
                   labelTypes: const [],
                 ),
               ),
@@ -72,7 +71,7 @@ class _ThemeSettingsWidgetState extends State<ThemeSettingsWidget> {
           ListTile(
             leading: const Icon(Icons.palette_outlined),
             title: const Text("主题设置"),
-            subtitle: const Text("允许用户根据喜好进行主题自定义。"),
+            subtitle: const Text("允许用户根据喜好进行主题自定义"),
             trailing: Icon(_isExpanded ? Icons.expand_less : Icons.expand_more),
             onTap: () {
               setState(() {
@@ -86,47 +85,49 @@ class _ThemeSettingsWidgetState extends State<ThemeSettingsWidget> {
                 ? CrossFadeState.showFirst
                 : CrossFadeState.showSecond,
             firstChild: Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 16.0),
+              padding: const EdgeInsets.fromLTRB(24.0, 16.0, 16.0, 12.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("应用主题", style: theme.textTheme.titleMedium),
-                        const SizedBox(height: 8),
-                        RadioListTile<ThemeMode>(
-                          title: const Text('跟随系统'),
-                          value: ThemeMode.system,
-                          groupValue: widget.currentMode,
-                          onChanged: (v) => widget.onModeChanged(v!),
-                          contentPadding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                    child: RadioGroup<ThemeMode>(
+                      groupValue: widget.currentMode,
+                      onChanged: (ThemeMode? v) {
+                        if (v != null) {
+                          widget.onModeChanged(v);
+                        }
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("应用主题", style: theme.textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          RadioListTile<ThemeMode>(
+                            title: const Text('跟随系统'),
+                            value: ThemeMode.system,
+                            contentPadding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
                           ),
-                        ),
-                        RadioListTile<ThemeMode>(
-                          title: const Text('浅色模式'),
-                          value: ThemeMode.light,
-                          groupValue: widget.currentMode,
-                          onChanged: (v) => widget.onModeChanged(v!),
-                          contentPadding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                          RadioListTile<ThemeMode>(
+                            title: const Text('浅色模式'),
+                            value: ThemeMode.light,
+                            contentPadding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
                           ),
-                        ),
-                        RadioListTile<ThemeMode>(
-                          title: const Text('深色模式'),
-                          value: ThemeMode.dark,
-                          groupValue: widget.currentMode,
-                          onChanged: (v) => widget.onModeChanged(v!),
-                          contentPadding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                          RadioListTile<ThemeMode>(
+                            title: const Text('深色模式'),
+                            value: ThemeMode.dark,
+                            contentPadding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 24),
