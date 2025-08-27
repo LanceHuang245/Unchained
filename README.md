@@ -1,24 +1,28 @@
+English | [简体中文](README_CN.md)
 <p align="center">
-    <a href="https://github.com/ClaretWheel1481/Unchained">
+    <a href="https://github.com/LanceHuang245/Unchained">
         <img src="public/logo.png" height="200"/>
     </a>
 </p>
 
 # Unchained
-辅助使用Rathole的远程穿透客户端。
+Unchained provides a GUI for Rathole, simplifies the process of configuring and managing multiple forwarding services, making the powerful features of Rathole more accessible to everyone.
 
-## 使用方法
-1. 一个拥有公网IP的服务器，并且防火墙开放需要连接及通行的端口
-2. 下载[Rathole](https://github.com/rapiz1/rathole)并在服务端根据[README](https://github.com/yujqiao/rathole/blob/main/README-zh.md)运行Rathole服务端，或他人提供的已经准备就绪的Rathole服务端
-3. 运行Unchained
-4. 在Unchained中输入Rathole服务端的[server]下的**bind.addr**和Token，以及需要转发的端口地址
-5. 点击开始穿透，显示Control channel established则表示穿透成功，此时连接服务端的[server.services.*]下的**bind_addr**即可。
+## Features
+- Intuitive graphical interface: Say goodbye to complex command lines and effortlessly manage forwarding services through a streamlined interface.
+- Simplified configuration: Visualizes Rathole's configuration process, lowering the learning curve.
+- Multi-service management: Conveniently add, edit, and delete multiple forwarding services.
+- Clear status: View connection status in real time—successful or failed connections are immediately apparent.
 
-## 致谢
-[Rathole](https://github.com/rapiz1/rathole)
-[Flutter](https://github.com/flutter/flutter)
 
-## 截图
+## Usage Instructions
+1. A server with a public IP address, with the required ports open in the firewall for connection and traffic.
+2. Download [Rathole](https://github.com/rathole-org/rathole) and run the Rathole server on your server following the [README](https://github.com/rathole-org/rathole/blob/main/README.md), or use a pre-configured Rathole server provided by others
+3. Run Unchained
+4. In Unchained, enter the **bind.addr** and Token from the Rathole server's [server] section, along with the port address to be forwarded
+5. Click Start Penetration. If “Control channel established” appears, penetration is successful. You can now connect to the **bind_addr** under [server.services.*] on the server.
+
+## Screenshots
 ![Main](/public/main_idle.png)
 ![Main](/public/main_running.png)
 ![Settings](/public/settings.png)
