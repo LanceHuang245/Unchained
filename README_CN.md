@@ -26,3 +26,9 @@ Unchained为内网穿透工具Rathole提供了一款直观的GUI，旨在简化R
 ![Main](/public/main_idle.png)
 ![Main](/public/main_running.png)
 ![Settings](/public/settings.png)
+
+## 贡献
+欢迎社区用户参与贡献！您可以自由 Fork 本仓库，提交 Pull Request，或通过 Issue 提出建议和报告 Bug。
+
+## 许可
+[MIT License](LICENSE) © Huang LinXing

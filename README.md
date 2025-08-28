@@ -26,3 +26,9 @@ Unchained provides a GUI for Rathole, simplifies the process of configuring and 
 ![Main](/public/main_idle.png)
 ![Main](/public/main_running.png)
 ![Settings](/public/settings.png)
+
+## Contributing
+We welcome community users to contribute! Feel free to fork this repository, submit Pull Requests, and make suggestions and report bugs through Issues.
+
+## License
+[MIT License](LICENSE) © Huang LinXing
