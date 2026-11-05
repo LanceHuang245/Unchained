@@ -13,42 +13,38 @@ class NavigationWidget extends StatefulWidget {
   NavigationWidgetState createState() => NavigationWidgetState();
 }
 
-// 【新增】让 State 混入 WindowListener 来监听窗口事件
-class NavigationWidgetState extends State<NavigationWidget>
-    with WindowListener {
+// 监听窗口事件
+class NavigationWidgetState extends State<NavigationWidget> {
   int _selectedIndex = 0;
   bool _isMaximized = false; // 用于追踪最大化状态
 
   final List<Widget> _pages = [const HomePage(), const SettingsPage()];
 
+  final Window _window = WindowManager.instance.getCurrent()!;
+  late final ListenerId _listenerId;
+
   @override
   void initState() {
     super.initState();
-    windowManager.addListener(this); // 添加监听器
+    _listenerId = _window.addListener(_onWindowEvent); // 添加监听器
     // 检查初始的最大化状态
-    _checkMaximizeState();
-  }
-
-  Future<void> _checkMaximizeState() async {
-    _isMaximized = await windowManager.isMaximized();
-    if (mounted) setState(() {});
+    _isMaximized = _window.isMaximized;
   }
 
   @override
   void dispose() {
-    windowManager.removeListener(this); // 移除监听器
+    _window.removeListener(_listenerId); // 移除监听器
     super.dispose();
   }
 
-  // 【新增】重写监听器方法，在窗口状态改变时更新UI
-  @override
-  void onWindowMaximize() {
-    if (mounted) setState(() => _isMaximized = true);
-  }
-
-  @override
-  void onWindowUnmaximize() {
-    if (mounted) setState(() => _isMaximized = false);
+  // 在窗口最大化/还原时更新UI
+  void _onWindowEvent(WindowEvent event) {
+    if (!mounted) return;
+    if (event is WindowMaximizedEvent) {
+      setState(() => _isMaximized = true);
+    } else if (event is WindowRestoredEvent) {
+      setState(() => _isMaximized = _window.isMaximized);
+    }
   }
 
   @override
@@ -84,16 +80,16 @@ class NavigationWidgetState extends State<NavigationWidget>
                 _WindowControlButton(
                   icon: Icons.minimize,
                   tooltip: '最小化',
-                  onPressed: () => windowManager.minimize(),
+                  onPressed: () => _window.minimize(),
                 ),
                 _WindowControlButton(
                   icon: _isMaximized ? Icons.fullscreen_exit : Icons.fullscreen,
                   tooltip: _isMaximized ? '还原' : '最大化',
-                  onPressed: () async {
-                    if (await windowManager.isMaximized()) {
-                      windowManager.unmaximize();
+                  onPressed: () {
+                    if (_window.isMaximized) {
+                      _window.unmaximize();
                     } else {
-                      windowManager.maximize();
+                      _window.maximize();
                     }
                   },
                 ),
@@ -103,7 +99,7 @@ class NavigationWidgetState extends State<NavigationWidget>
                   hoverColor: Colors.red,
                   onPressed: () async {
                     await RatholeConfigManager.stopRathole();
-                    await windowManager.close();
+                    _window.close();
                   },
                 ),
               ],

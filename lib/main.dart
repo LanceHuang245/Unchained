@@ -18,20 +18,15 @@ late final ValueNotifier<Color> accentColorNotifier;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await windowManager.ensureInitialized();
-  WindowOptions windowOptions = const WindowOptions(
-    size: Size(1080, 620),
-    minimumSize: Size(800, 600),
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-  );
-
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  // Configure the app window via window_manager 0.6's native API, then show it
+  final window = WindowManager.instance.getCurrent()!;
+  window.titleBarStyle = TitleBarStyle.hidden;
+  window.setSize(const Size(1080, 620).toNative(), false);
+  window.center();
+  window.minimumSize = const Size(800, 600).toNative();
+  window.backgroundColor = Colors.transparent.toNative();
+  window.show();
+  window.focus();
 
   final prefs = await SharedPreferences.getInstance();
   final saved = prefs.getString('theme_mode') ?? 'system';
